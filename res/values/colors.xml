@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="sc_gray">#666666</color>
+    <color name="sc_dark_gray">#333333</color>
+    <color name="sc_light_gray">#ededed</color>
+</resources>
