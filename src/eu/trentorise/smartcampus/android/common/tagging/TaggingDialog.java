@@ -7,8 +7,6 @@ import java.util.List;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -19,12 +17,17 @@ import eu.trentorise.smartcampus.android.common.R;
 import eu.trentorise.smartcampus.android.common.tagging.SemanticSuggestion.TYPE;
 
 public class TaggingDialog extends Dialog {
-	protected static final int THRESHOLD = 2;
+	
+	protected static final int THRESHOLD = 3;
+
 	private OnTagsSelectedListener listener;
+	
 	private MultiAutoCompleteTextView auto;
 	private TagListAdapter tagListAdapter;
 	private SemanticSuggestionsAdapter suggestionAdapter;
 	private TagProvider provider;
+
+	private Collection<SemanticSuggestion> init;
 	
 	public interface OnTagsSelectedListener {
 		public void onTagsSelected(Collection<SemanticSuggestion> suggestions);
@@ -38,6 +41,12 @@ public class TaggingDialog extends Dialog {
 		this.listener = listener;
 		this.provider = provider;
 	}
+	public TaggingDialog(Context context, OnTagsSelectedListener listener, TagProvider provider, Collection<SemanticSuggestion> init) {
+		super(context);
+		this.listener = listener;
+		this.provider = provider;
+		this.init = init;
+	}
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -48,11 +57,20 @@ public class TaggingDialog extends Dialog {
 		ListView list = (ListView)findViewById(R.id.tag_list);
 		list.setAdapter(tagListAdapter);
 		
+		if (init != null) {
+			for (SemanticSuggestion ss : init) {
+				tagListAdapter.add(ss);
+			}
+			tagListAdapter.notifyDataSetChanged(); 
+		}
+		
+		
 		auto = (MultiAutoCompleteTextView) findViewById(R.id.tags_tv);
-		suggestionAdapter = new SemanticSuggestionsAdapter(getContext(), R.layout.semantic_tag_list_row_layout);
+		suggestionAdapter = new SemanticSuggestionsAdapter(getContext(), R.layout.semantic_tag_list_row_layout, provider);
 		auto.setAdapter(suggestionAdapter);
+		auto.setThreshold(THRESHOLD);
 		auto.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
-		auto.addTextChangedListener(textWatcher);
+//		auto.addTextChangedListener(textWatcher);
 		auto.setOnItemClickListener(new OnItemClickListener() {
 
 			@Override
@@ -108,43 +126,24 @@ public class TaggingDialog extends Dialog {
 		});
 	}
 
-	private final TextWatcher textWatcher = new TextWatcher() {
-		
-		@Override
-		public void onTextChanged(CharSequence s, int start, int before, int count) {
-			if (s != null && s.length() > THRESHOLD) {
-				suggestionAdapter.clear();
-				List<SemanticSuggestion> list = provider.getTags(s);
-				if (list != null) {
-					for (SemanticSuggestion ss : list) suggestionAdapter.add(ss);
-				}
-				suggestionAdapter.notifyDataSetChanged();
-			}
-		}
-		
-		@Override
-		public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-		
-		@Override
-		public void afterTextChanged(Editable s) {}
-	};
-//	// possibly inefficient!!!
-//	protected void parseInput(String text) {
-//		StringTokenizer tokenizer = new StringTokenizer(text, ",");
-//		while (tokenizer.hasMoreTokens()) {
-//			String token = tokenizer.nextToken();
-//			token = token.trim();
-//			if (!token.equals("")) {
-//				boolean found = false;
-//				for (SemanticSuggestion s : suggestions) {
-//					if (s.getWord().equals(token)) {
-//						found = true;
-//						break;
-//					}
+//	private final TextWatcher textWatcher = new TextWatcher() {
+//		
+//		@Override
+//		public void onTextChanged(CharSequence s, int start, int before, int count) {
+//			if (s != null && s.length() > THRESHOLD) {
+//				suggestionAdapter.clear();
+//				List<SemanticSuggestion> list = provider.getTags(s);
+//				if (list != null) {
+//					for (SemanticSuggestion ss : list) suggestionAdapter.add(ss);
 //				}
-//				if (!found)
-//					free_keywords.add(token);
+//				suggestionAdapter.notifyDataSetChanged();
 //			}
 //		}
-//	}
+//		
+//		@Override
+//		public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+//		
+//		@Override
+//		public void afterTextChanged(Editable s) {}
+//	};
 }

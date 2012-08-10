@@ -1,5 +1,6 @@
 package eu.trentorise.smartcampus.android.common.tagging;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
@@ -7,22 +8,24 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Filter;
 import android.widget.TextView;
 import eu.trentorise.smartcampus.android.common.R;
+import eu.trentorise.smartcampus.android.common.tagging.TaggingDialog.TagProvider;
 
 public class SemanticSuggestionsAdapter extends ArrayAdapter<SemanticSuggestion> {
 	private Context context;
 	private int layoutResourceId;
 
-	public SemanticSuggestionsAdapter(Context context, int layoutResourceId) {
+    private List<SemanticSuggestion> mSubData = new ArrayList<SemanticSuggestion>();
+	private TagProvider provider;
+    static int counter=0;
+
+	public SemanticSuggestionsAdapter(Context context, int layoutResourceId, TagProvider provider) {
 		super(context, layoutResourceId);
 		this.context = context;
 		this.layoutResourceId = layoutResourceId;
-	}
-	public SemanticSuggestionsAdapter(Context context, int layoutResourceId, List<SemanticSuggestion> database) {
-		super(context, layoutResourceId, database);
-		this.context = context;
-		this.layoutResourceId = layoutResourceId;
+		this.provider = provider;
 	}
 
 	@Override
@@ -45,4 +48,60 @@ public class SemanticSuggestionsAdapter extends ArrayAdapter<SemanticSuggestion>
 		}
 		return row;
 	}
+	
+	
+	@Override
+	public Filter getFilter() {
+		return filter;
+	}
+
+	@Override
+	public int getCount() {
+		return mSubData.size();
+	}
+	
+	@Override
+	public SemanticSuggestion getItem(int index) {
+	    return mSubData.get(index);
+	}
+
+	final Filter filter = new Filter() {
+        private int c = ++counter;
+        private List<SemanticSuggestion> mData = new ArrayList<SemanticSuggestion>();
+
+        @Override
+		protected FilterResults performFiltering(CharSequence constraint) {
+            mData.clear();
+
+            FilterResults filterResults = new FilterResults();
+            if(constraint != null) {
+              try {
+            	  mData.addAll(provider.getTags(constraint));
+              }
+              catch(Exception e) {
+              }
+
+              filterResults.values = mData;
+              filterResults.count = mData.size();
+            }
+            return filterResults;		
+        }
+
+		@SuppressWarnings("unchecked")
+		@Override
+		protected void publishResults(CharSequence constraint, FilterResults results) {
+			if(c == counter) {
+	            mSubData.clear();
+	              if(results != null && results.count > 0) {
+	                ArrayList<SemanticSuggestion> objects = (ArrayList<SemanticSuggestion>)results.values;
+	                for (SemanticSuggestion v : objects) mSubData.add(v);
+	                notifyDataSetChanged();
+	              }
+	              else {
+	                notifyDataSetInvalidated();
+	              }
+	          }
+		}
+		
+	};
 }
