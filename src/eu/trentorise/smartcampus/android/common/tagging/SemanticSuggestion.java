@@ -5,7 +5,7 @@ public class SemanticSuggestion {
 	public enum TYPE {SEMANTIC, KEYWORD, ENTITY};
 	
 	private String description;
-	private String id;
+	private Long id;
 	private String word;
 	private String summary;
 	
@@ -51,11 +51,11 @@ public class SemanticSuggestion {
 		return getWord();
 	}
 
-	public String getId() {
+	public Long getId() {
 		return id;
 	}
 
-	public void setId(String id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 
