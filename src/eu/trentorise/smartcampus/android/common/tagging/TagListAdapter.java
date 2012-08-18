@@ -42,7 +42,7 @@ public class TagListAdapter extends ArrayAdapter<SemanticSuggestion> {
 
 		SemanticSuggestion content = getItem(position);
 		holder.content_action.setTag(content);
-		holder.content_word.setText(content.getWord());
+		holder.content_word.setText(content.getName());
 		if (content.getType() != TYPE.KEYWORD && content.getDescription() != null) {
 			holder.content_descr.setText(content.getDescription());
 		} else {

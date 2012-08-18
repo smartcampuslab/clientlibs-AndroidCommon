@@ -41,7 +41,7 @@ public class SemanticSuggestionsAdapter extends ArrayAdapter<SemanticSuggestion>
 		if (s != null) {
 			TextView word = (TextView) row.findViewById(R.id.semanticTagWord);
 			if (word != null)
-				word.setText(s.getWord());
+				word.setText(s.getName());
 			TextView descr = (TextView) row.findViewById(R.id.semanticTagDescr);
 			if (descr != null)
 				descr.setText(s.getDescription());

@@ -6,15 +6,15 @@ public class SemanticSuggestion {
 	
 	private String description;
 	private Long id;
-	private String word;
+	private String name;
 	private String summary;
 	
 	private TYPE type = TYPE.SEMANTIC;
 	
-	public SemanticSuggestion(String word, String description) {
+	public SemanticSuggestion(String name, String description) {
 		super();
 		this.description = description;
-		this.word = word;
+		this.name = name;
 	}
 
 	
@@ -22,15 +22,15 @@ public class SemanticSuggestion {
 		super();
 	}
 
-
-	public String getWord() {
-		return word;
+	public String getName() {
+		return name;
 	}
 
-	public void setWord(String word) {
-		this.word = word;
+	public void setName(String name) {
+		this.name = name;
 	}
-	
+
+
 	public TYPE getType() {
 		return type;
 	}
@@ -48,7 +48,7 @@ public class SemanticSuggestion {
 	}
 
 	public String toString() {
-		return getWord();
+		return getName();
 	}
 
 	public Long getId() {
@@ -79,7 +79,7 @@ public class SemanticSuggestion {
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((summary == null) ? 0 : summary.hashCode());
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
-		result = prime * result + ((word == null) ? 0 : word.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		return result;
 	}
 
@@ -110,10 +110,10 @@ public class SemanticSuggestion {
 			return false;
 		if (type != other.type)
 			return false;
-		if (word == null) {
-			if (other.word != null)
+		if (name == null) {
+			if (other.name != null)
 				return false;
-		} else if (!word.equals(other.word))
+		} else if (!name.equals(other.name))
 			return false;
 		return true;
 	}

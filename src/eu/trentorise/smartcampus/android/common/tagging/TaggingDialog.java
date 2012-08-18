@@ -101,7 +101,7 @@ public class TaggingDialog extends Dialog {
 				String txt = auto.getText().toString();
 				if (txt != null && txt.trim().length() > 0) {
 					SemanticSuggestion ss = new SemanticSuggestion();
-					ss.setWord(txt.trim());
+					ss.setName(txt.trim());
 					ss.setType(TYPE.KEYWORD);
 					tagListAdapter.add(ss);
 					tagListAdapter.notifyDataSetChanged();
