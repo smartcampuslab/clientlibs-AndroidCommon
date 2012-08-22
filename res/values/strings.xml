@@ -4,5 +4,8 @@
     <string name="tag_dialog_title">Enter tags</string>
     <string name="tag_add">Add</string>
     <string name="create_tags">Tags</string>
+
+    <string name="follow_entity_arg_entity">entity</string>
+    <string name="follow_intent_action">eu.trentorise.smartcampus.cm.FOLLOW</string>
     
 </resources>
