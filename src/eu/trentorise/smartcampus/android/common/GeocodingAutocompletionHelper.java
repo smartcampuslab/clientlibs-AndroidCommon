@@ -20,18 +20,21 @@ import android.widget.Filter;
 
 public class GeocodingAutocompletionHelper implements TextWatcher, OnItemClickListener {
 
+	public static interface OnAddressSelectedListener {
+		public void onAddressSelected(Address address);
+	}
+	
 	private static final int MESSAGE_TEXT_CHANGED = 0;
 	private static final int THRESHOLD = 5; 
 
 	private ArrayAdapter<String> autoCompleteAdapter = null;
 
-	Address selected = null;
-	
 	List<Address> autoCompleteSuggestionAddresses = null;
 	
 	private MyMessageHandler messageHandler = null;
 	
 	private double llLat = -1, llLng = -1, urLat = -1, urLng = -1;
+	private OnAddressSelectedListener listener;
 	
 	public GeocodingAutocompletionHelper(Context context, AutoCompleteTextView autoComplete, double llLat, double llLng, double urLat, double urLong) {
 		this(context, autoComplete);
@@ -54,20 +57,14 @@ public class GeocodingAutocompletionHelper implements TextWatcher, OnItemClickLi
 		messageHandler = new MyMessageHandler(context);
 	}
 	
+	public void setOnAddressSelectedListener(OnAddressSelectedListener listener) {
+		this.listener = listener;
+	} 	
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		if (position < autoCompleteSuggestionAddresses.size()) {
-	        selected = autoCompleteSuggestionAddresses.get(position);
+	        listener.onAddressSelected(autoCompleteSuggestionAddresses.get(position));
 	    }
-	}
-
-//	@Override
-//	public void onNothingSelected(AdapterView<?> parent) {
-//		selected = null;
-//	}
-//	
-	public Address getSelectedAddress() {
-		return selected;
 	}
 
 	@Override
