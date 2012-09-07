@@ -35,15 +35,29 @@ public class SCAsyncTask<Params, Progress, Result> extends AsyncTask<Params, Pro
 	}
 	
 	@Override
-	protected void onPostExecute(Result result) {
+	protected final void onPostExecute(Result result) {
 		if (progress != null) progress.dismiss();
-		if (status == STATUS.OK) processor.handleResult(result);
+		if (status == STATUS.OK) {
+			handleSuccess(result);
+		}
 		else if (status == STATUS.SECURITY) {
-			processor.handleSecurityError();
+			handleSecurityError();
 		}
 		else {
-			processor.handleFailure(error);
+			handleFailure();
 		}
+	}
+
+	protected void handleFailure() {
+		processor.handleFailure(error);
+	}
+
+	protected void handleSecurityError() {
+		processor.handleSecurityError();
+	}
+
+	protected void handleSuccess(Result result) {
+		processor.handleResult(result);
 	}
 
 	@Override
