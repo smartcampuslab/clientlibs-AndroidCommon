@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="tag_dialog_title">Enter tags</string>
+    <string name="tag_dialog_title">Enter tags:</string>
     <string name="tag_add">Add</string>
     <string name="create_tags">Tags</string>
 
