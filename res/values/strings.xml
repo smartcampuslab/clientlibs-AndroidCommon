@@ -11,5 +11,10 @@
     <string name="navigate_arg_from">from</string>
     <string name="navigate_arg_to">to</string>
     <string name="navigate_intent_action">eu.trentorise.smartcampus.jp.NAVIGATE</string>
+
+    <string name="view_intent_action">eu.trentorise.smartcampus.VIEW</string>
+    <string name="view_intent_arg_data">data</string>
+    <string name="view_intent_arg_entity_id">entityId</string>
+    <string name="view_intent_arg_entity_type">entityType</string>
     
 </resources>
