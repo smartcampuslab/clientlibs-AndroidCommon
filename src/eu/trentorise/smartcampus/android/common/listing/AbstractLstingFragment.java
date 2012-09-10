@@ -86,6 +86,7 @@ public abstract class AbstractLstingFragment<T> extends SherlockFragment impleme
 				for (T o: result) {
 					adapter.add(o);
 				}
+				lastSize = adapter.getCount();
 			}
 			adapter.notifyDataSetChanged();
 		}
