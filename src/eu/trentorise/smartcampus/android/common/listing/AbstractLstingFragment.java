@@ -41,11 +41,15 @@ public abstract class AbstractLstingFragment<T> extends SherlockFragment impleme
 		ListView contentsListView = getListView();
 		position = 0;
 		if (adapter != null) {
-			load();
+			if (loadOnStart()) load();
 			contentsListView.setAdapter(adapter);
 		}
 		contentsListView.setOnScrollListener(this);
 		super.onStart();
+	}
+
+	protected boolean loadOnStart() {
+		return true;
 	}
 
 	protected abstract ListView getListView();
