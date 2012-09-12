@@ -40,6 +40,7 @@ public abstract class AbstractLstingFragment<T> extends SherlockFragment impleme
 	public void onStart() {
 		ListView contentsListView = getListView();
 		position = 0;
+		lastSize = 0;
 		if (adapter != null) {
 			if (loadOnStart()) load();
 			contentsListView.setAdapter(adapter);
@@ -62,7 +63,8 @@ public abstract class AbstractLstingFragment<T> extends SherlockFragment impleme
 	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 		boolean loadMore = 
 				(firstVisibleItem + visibleItemCount >= totalItemCount) && // end of visible list reached 
-				(lastSize < adapter.getCount()); // last load has been successful	
+				(lastSize < adapter.getCount()) &&  // last load has been successful
+				adapter.getCount() >= size;
 		if (loadMore) {
 			lastSize = adapter.getCount();
 			position += size; 
@@ -90,7 +92,6 @@ public abstract class AbstractLstingFragment<T> extends SherlockFragment impleme
 				for (T o: result) {
 					adapter.add(o);
 				}
-				lastSize = adapter.getCount();
 			}
 			adapter.notifyDataSetChanged();
 		}
