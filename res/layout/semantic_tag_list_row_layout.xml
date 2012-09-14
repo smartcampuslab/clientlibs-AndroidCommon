@@ -12,7 +12,7 @@
 
     <TextView
         android:id="@+id/semanticTagWord"
-        android:layout_width="match_parent"
+        android:layout_width="match_parent" 
         android:textColor="@color/sc_dark_gray"
         android:layout_height="wrap_content"
         android:layout_margin="3dp"
@@ -21,7 +21,7 @@
     <TextView
         android:id="@+id/semanticTagDescr"
         android:layout_width="match_parent"
-        android:textColor="@color/sc_gray"
+        android:textColor="@color/sc_gray" 
         android:layout_height="wrap_content"
         android:layout_margin="3dp"
         android:layout_weight="1" />
