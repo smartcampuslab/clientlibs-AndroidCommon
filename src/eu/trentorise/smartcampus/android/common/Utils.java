@@ -2,7 +2,6 @@ package eu.trentorise.smartcampus.android.common;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -51,13 +50,12 @@ public class Utils {
 			return null;
 		}
 	}
-	@SuppressWarnings("rawtypes")
 	public static <T> List<T> convertJSONToObjects(String body, Class<T> cls) {
 		try {
-			List<Map> list = fullMapper.readValue(body, new TypeReference<List<Map>>() { });
+			List<Object> list = fullMapper.readValue(body, new TypeReference<List<?>>() { });
 			List<T> result = new ArrayList<T>();
-			for (Map map : list) {
-				result.add(fullMapper.convertValue(map,cls));
+			for (Object o : list) {
+				result.add(fullMapper.convertValue(o,cls));
 			}
 			return result;
 		} catch (Exception e) {
