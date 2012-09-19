@@ -15,7 +15,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="3dp"
-            android:textStyle="@android:style/TextAppearance.Large" />
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/semanticTagDescr"
@@ -24,17 +24,20 @@
             android:layout_marginLeft="3dp" />
     </LinearLayout>
 
-    <Button
+    <TextView
         android:id="@+id/semanticTagButton"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:layout_margin="3dp"
-        android:background="@android:color/transparent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="3dp"
         android:text="@android:string/cancel" />
+
     <!--
-      android:background="@drawable/ic_remove" 
-    android:textColor="@android:color/white"
+<Button
+        android:id="@+id/semanticButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="3dp"
+        android:text="@android:string/ok" />
     -->
-    
+
 </LinearLayout>

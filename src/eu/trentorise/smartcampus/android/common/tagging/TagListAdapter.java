@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.TextView;
 import eu.trentorise.smartcampus.android.common.R;
 import eu.trentorise.smartcampus.android.common.tagging.SemanticSuggestion.TYPE;
@@ -33,7 +32,7 @@ public class TagListAdapter extends ArrayAdapter<SemanticSuggestion> {
 			holder = new DataHolder();
 			holder.content_word = (TextView) row.findViewById(R.id.semanticTagWord);
 			holder.content_descr = (TextView) row.findViewById(R.id.semanticTagDescr);
-			holder.content_action = (Button) row.findViewById(R.id.semanticTagButton);
+			holder.content_action = (TextView) row.findViewById(R.id.semanticTagButton);
 
 			row.setTag(holder);
 		} else {
@@ -63,7 +62,7 @@ public class TagListAdapter extends ArrayAdapter<SemanticSuggestion> {
 	static class DataHolder {
 		TextView content_word;
 		TextView content_descr;
-		Button content_action;
+		TextView content_action;
 		SemanticSuggestion tag;
 	}
 }
