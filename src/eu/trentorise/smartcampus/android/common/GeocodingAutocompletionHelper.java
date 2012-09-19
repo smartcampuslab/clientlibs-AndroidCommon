@@ -46,7 +46,7 @@ public class GeocodingAutocompletionHelper implements TextWatcher, OnItemClickLi
 
 	public GeocodingAutocompletionHelper(Context context, AutoCompleteTextView autoComplete) {
 		super();
-		autoCompleteAdapter = new ArrayAdapterNoFilter(context, android.R.layout.simple_dropdown_item_1line);
+		autoCompleteAdapter = new ArrayAdapterNoFilter(context, R.layout.dd_list);
 		autoCompleteAdapter.setNotifyOnChange(false);
 		
 		autoComplete.addTextChangedListener(this);
