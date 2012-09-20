@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import eu.trentorise.smartcampus.android.common.AppHelper;
 
 public class ViewHelper {
 
@@ -14,7 +15,6 @@ public class ViewHelper {
 		intent.putExtra(ctx.getString(eu.trentorise.smartcampus.android.common.R.string.view_intent_arg_entity_id), entityId);
 		intent.putExtra(ctx.getString(eu.trentorise.smartcampus.android.common.R.string.view_intent_arg_entity_type), type);
 		intent.putExtra(ctx.getString(eu.trentorise.smartcampus.android.common.R.string.view_intent_arg_data), parameters);
-		ctx.startActivity(intent);
+		AppHelper.startActivityForApp(intent, ctx);
 	}
-
 }

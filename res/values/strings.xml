@@ -17,4 +17,6 @@
     <string name="view_intent_arg_entity_id">entityId</string>
     <string name="view_intent_arg_entity_type">entityType</string>
     
+    <string name="app_not_installed">No suitable application found. Install the application from the SmartCampus launcher.</string>
+    
 </resources>
