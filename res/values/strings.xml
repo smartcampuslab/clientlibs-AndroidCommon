@@ -8,6 +8,9 @@
     <string name="follow_entity_arg_entity">entity</string>
     <string name="follow_intent_action">eu.trentorise.smartcampus.cm.FOLLOW</string>
 
+    <string name="share_entity_arg_entity">entity</string>
+    <string name="share_intent_action">eu.trentorise.smartcampus.cm.SHARE</string>
+    
     <string name="navigate_arg_from">from</string>
     <string name="navigate_arg_to">to</string>
     <string name="navigate_intent_action">eu.trentorise.smartcampus.jp.NAVIGATE</string>
