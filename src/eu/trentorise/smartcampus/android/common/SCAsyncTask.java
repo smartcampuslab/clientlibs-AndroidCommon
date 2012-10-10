@@ -76,7 +76,7 @@ public class SCAsyncTask<Params, Progress, Result> extends AsyncTask<Params, Pro
 	}
 
 	public interface SCAsyncTaskProcessor<Params,Result> {
-		Result performAction(Params ...params) throws eu.trentorise.smartcampus.protocolcarrier.exceptions.SecurityException, Exception;
+		Result performAction(Params ...params) throws eu.trentorise.smartcampus.protocolcarrier.exceptions.SecurityException, eu.trentorise.smartcampus.protocolcarrier.exceptions.ConnectionException, Exception;
 		void handleResult(Result result);
 		void handleFailure(Exception e);
 		void handleSecurityError();
