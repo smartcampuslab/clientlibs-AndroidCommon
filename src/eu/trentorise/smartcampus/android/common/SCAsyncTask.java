@@ -10,7 +10,7 @@ public class SCAsyncTask<Params, Progress, Result> extends AsyncTask<Params, Pro
 
 	private Activity activity;
 	private SCAsyncTaskProcessor<Params,Result> processor;
-	private enum STATUS {OK, SECURITY, FAILURE};
+	private enum STATUS {OK, SECURITY, CONNECTION, FAILURE};
 	private Exception error;
 	private STATUS status = STATUS.OK;
 	
@@ -26,7 +26,9 @@ public class SCAsyncTask<Params, Progress, Result> extends AsyncTask<Params, Pro
 			return processor.performAction(params);
 		} catch (eu.trentorise.smartcampus.protocolcarrier.exceptions.SecurityException e) {
 			status = STATUS.SECURITY;
-		} catch (Exception e) {
+		} catch (eu.trentorise.smartcampus.protocolcarrier.exceptions.ConnectionException e) {
+		status = STATUS.CONNECTION;
+	}catch (Exception e) {
 			error = e;
 			status = STATUS.FAILURE;
 		}
@@ -43,6 +45,9 @@ public class SCAsyncTask<Params, Progress, Result> extends AsyncTask<Params, Pro
 		else if (status == STATUS.SECURITY) {
 			handleSecurityError();
 		}
+		else if (status == STATUS.CONNECTION) {
+			handleConnectionError();
+		}
 		else {
 			handleFailure();
 		}
@@ -54,6 +59,10 @@ public class SCAsyncTask<Params, Progress, Result> extends AsyncTask<Params, Pro
 
 	protected void handleSecurityError() {
 		processor.handleSecurityError();
+	}
+	
+	protected void handleConnectionError() {
+		processor.handleConnectionError();
 	}
 
 	protected void handleSuccess(Result result) {
@@ -71,6 +80,7 @@ public class SCAsyncTask<Params, Progress, Result> extends AsyncTask<Params, Pro
 		void handleResult(Result result);
 		void handleFailure(Exception e);
 		void handleSecurityError();
+		void handleConnectionError();
 	}
 
 }

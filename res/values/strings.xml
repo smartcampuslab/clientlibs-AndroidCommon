@@ -22,5 +22,10 @@
     <string name="view_intent_arg_object_id">objectId</string>
     
     <string name="app_not_installed">No suitable application found. Install the application from the SmartCampus launcher.</string>
+   
+    <string name="dialog_connectivity_message">No suitable connection found. Open settings.</string>
+    <string name="dialog_connectivity_title">Connectivity problem</string>
+    <string name="ok">OK</string>
+    <string name="cancel">CANCEL</string>
     
 </resources>
