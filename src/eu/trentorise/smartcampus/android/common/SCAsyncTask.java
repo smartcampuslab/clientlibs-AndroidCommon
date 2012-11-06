@@ -3,6 +3,7 @@ package eu.trentorise.smartcampus.android.common;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
+import android.util.Log;
 
 public class SCAsyncTask<Params, Progress, Result> extends AsyncTask<Params, Progress, Result> {
 
@@ -38,7 +39,13 @@ public class SCAsyncTask<Params, Progress, Result> extends AsyncTask<Params, Pro
 	
 	@Override
 	protected final void onPostExecute(Result result) {
-		if (progress != null) progress.dismiss();
+		if (progress != null) {
+			try {
+				progress.cancel();
+			} catch (Exception e) {
+				Log.w(getClass().getName(),"Problem closing progress dialog: "+e.getMessage());
+			}
+		}
 		if (status == STATUS.OK) {
 			handleSuccess(result);
 		}
