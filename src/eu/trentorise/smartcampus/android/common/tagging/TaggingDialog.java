@@ -27,7 +27,7 @@ public class TaggingDialog extends Dialog {
 	private SemanticSuggestionsAdapter suggestionAdapter;
 	private TagProvider provider;
 
-	private Collection<SemanticSuggestion> init;
+	private ArrayList<SemanticSuggestion> init;
 	
 	public interface OnTagsSelectedListener {
 		public void onTagsSelected(Collection<SemanticSuggestion> suggestions);
@@ -41,7 +41,7 @@ public class TaggingDialog extends Dialog {
 		this.listener = listener;
 		this.provider = provider;
 	}
-	public TaggingDialog(Context context, OnTagsSelectedListener listener, TagProvider provider, Collection<SemanticSuggestion> init) {
+	public TaggingDialog(Context context, OnTagsSelectedListener listener, TagProvider provider, ArrayList<SemanticSuggestion> init) {
 		super(context);
 		this.listener = listener;
 		this.provider = provider;
@@ -53,7 +53,7 @@ public class TaggingDialog extends Dialog {
 		setContentView(R.layout.tag_dialog_layout);
 		setTitle(R.string.tag_dialog_title);
 
-		tagListAdapter = new TagListAdapter(getContext(), R.layout.added_semantic_tag_list_row_layout);
+		tagListAdapter = new TagListAdapter(getContext(), R.layout.added_semantic_tag_list_row_layout, init);
 		ListView list = (ListView)findViewById(R.id.tag_list);
 		list.setAdapter(tagListAdapter);
 		

@@ -1,5 +1,7 @@
 package eu.trentorise.smartcampus.android.common.tagging;
 
+import java.util.ArrayList;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,8 +16,8 @@ public class TagListAdapter extends ArrayAdapter<SemanticSuggestion> {
 	Context context;
 	int layoutResourceId;
 
-	public TagListAdapter(Context context, int layoutResourceId) {
-		super(context, layoutResourceId);
+	public TagListAdapter(Context context, int layoutResourceId, ArrayList<SemanticSuggestion> initial) {
+		super(context, layoutResourceId, initial);
 		this.context = context;
 		this.layoutResourceId = layoutResourceId;
 	}
