@@ -58,9 +58,6 @@ public class TaggingDialog extends Dialog {
 		list.setAdapter(tagListAdapter);
 		
 		if (init != null) {
-			for (SemanticSuggestion ss : init) {
-				tagListAdapter.add(ss);
-			}
 			tagListAdapter.notifyDataSetChanged(); 
 		}
 		
