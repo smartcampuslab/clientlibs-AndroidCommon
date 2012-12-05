@@ -23,63 +23,65 @@ public class GeocodingAutocompletionHelper implements TextWatcher, OnItemClickLi
 	public static interface OnAddressSelectedListener {
 		public void onAddressSelected(Address address);
 	}
-	
+
 	private static final int MESSAGE_TEXT_CHANGED = 0;
-	private static final int THRESHOLD = 5; 
+	private static final int THRESHOLD = 5;
 
 	private ArrayAdapter<String> autoCompleteAdapter = null;
 
 	List<Address> autoCompleteSuggestionAddresses = null;
-	
+
 	private MyMessageHandler messageHandler = null;
-	
-	private double llLat = -1, llLng = -1, urLat = -1, urLng = -1;
+
+	private Double llLat = null, llLong = null, urLat = null, urLong = null;
 	private OnAddressSelectedListener listener;
-	
-	public GeocodingAutocompletionHelper(Context context, AutoCompleteTextView autoComplete, double llLat, double llLng, double urLat, double urLong) {
+
+	public GeocodingAutocompletionHelper(Context context, AutoCompleteTextView autoComplete, double llLat,
+			double llLong, double urLat, double urLong) {
 		this(context, autoComplete);
 		this.llLat = llLat;
-		this.llLng = llLng;
+		this.llLong = llLong;
 		this.urLat = urLat;
-		this.urLng = urLong;
+		this.urLong = urLong;
 	}
 
 	public GeocodingAutocompletionHelper(Context context, AutoCompleteTextView autoComplete) {
 		super();
 		autoCompleteAdapter = new ArrayAdapterNoFilter(context, R.layout.dd_list);
 		autoCompleteAdapter.setNotifyOnChange(false);
-		
+
 		autoComplete.addTextChangedListener(this);
 		autoComplete.setOnItemClickListener(this);
 		autoComplete.setThreshold(THRESHOLD);
-	    autoComplete.setAdapter(autoCompleteAdapter);
-	    
+		autoComplete.setAdapter(autoCompleteAdapter);
+
 		messageHandler = new MyMessageHandler(context);
 	}
-	
+
 	public void setOnAddressSelectedListener(OnAddressSelectedListener listener) {
 		this.listener = listener;
-	} 	
+	}
+
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		if (position < autoCompleteSuggestionAddresses.size()) {
-	        listener.onAddressSelected(autoCompleteSuggestionAddresses.get(position));
-	    }
+			listener.onAddressSelected(autoCompleteSuggestionAddresses.get(position));
+		}
 	}
 
 	@Override
 	public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-		messageHandler.removeMessages(MESSAGE_TEXT_CHANGED);		
+		messageHandler.removeMessages(MESSAGE_TEXT_CHANGED);
 	}
 
 	@Override
 	public void onTextChanged(CharSequence s, int start, int before, int count) {
 		String value = s.toString();
 		if (!"".equals(value) && value.length() >= THRESHOLD) {
-		    Message msg = Message.obtain(messageHandler, MESSAGE_TEXT_CHANGED, value);
-		    messageHandler.sendMessageDelayed(msg, 500);
+			Message msg = Message.obtain(messageHandler, MESSAGE_TEXT_CHANGED, value);
+			messageHandler.sendMessageDelayed(msg, 500);
 		} else {
-		    autoCompleteAdapter.clear();
+			autoCompleteAdapter.clear();
 		}
 	}
 
@@ -88,71 +90,72 @@ public class GeocodingAutocompletionHelper implements TextWatcher, OnItemClickLi
 	}
 
 	private void notifyResult(List<Address> suggestions) {
-	    autoCompleteSuggestionAddresses = suggestions;
-	    autoCompleteAdapter.clear();
-	    for (Address a : suggestions) {
-	    	String s = "";
-	    	for (int i = 0; i <= a.getMaxAddressLineIndex(); i++) {
-	    		s += a.getAddressLine(i)+ " ";
-	    	} 
-	        autoCompleteAdapter.add(s.trim());
-	    }
-	    autoCompleteAdapter.notifyDataSetChanged();
+		autoCompleteSuggestionAddresses = suggestions;
+		autoCompleteAdapter.clear();
+		for (Address a : suggestions) {
+			String s = "";
+			for (int i = 0; i <= a.getMaxAddressLineIndex(); i++) {
+				s += a.getAddressLine(i) + " ";
+			}
+			autoCompleteAdapter.add(s.trim());
+		}
+		autoCompleteAdapter.notifyDataSetChanged();
 	}
 
 	private class MyMessageHandler extends Handler {
 
-	    private Context context;
+		private Context context;
 
-	    public MyMessageHandler(Context context) {
-	        this.context = context;
-	    }
+		public MyMessageHandler(Context context) {
+			this.context = context;
+		}
 
-	    @Override
-	    public void handleMessage(Message msg) {
-	        if (msg.what == MESSAGE_TEXT_CHANGED) {
-	            String enteredText = (String) msg.obj;
+		@Override
+		public void handleMessage(Message msg) {
+			if (msg.what == MESSAGE_TEXT_CHANGED) {
+				String enteredText = (String) msg.obj;
 
-	            try {
-	            	List<Address> response = null;
-	            	if (llLat >= 0 ) {
-	            		response = new Geocoder(context).getFromLocationName(enteredText, 10, llLat, llLng, urLat, urLng);
-	            		if (response != null && ! response.isEmpty()) {
-	            			notifyResult(response);
-	            			return;
-	            		}
-	            	}
-	                response = new Geocoder(context).getFromLocationName(enteredText, 10);
+				try {
+					List<Address> response = null;
+					if (llLat != null && llLong != null && urLat != null && urLong != null) {
+						response = new Geocoder(context).getFromLocationName(enteredText, 10, llLat, llLong, urLat,
+								urLong);
+						if (response != null && !response.isEmpty()) {
+							notifyResult(response);
+							return;
+						}
+					}
+					response = new Geocoder(context).getFromLocationName(enteredText, 10);
 
-	                notifyResult(response);
-	            } catch (IOException ex) {
-	                Log.e(getClass().getName(), "Failed to get autocomplete suggestions", ex);
-	            }
-	        }
-	    }
+					notifyResult(response);
+				} catch (IOException ex) {
+					Log.e(getClass().getName(), "Failed to get autocomplete suggestions", ex);
+				}
+			}
+		}
 	}
-	
+
 	public static class ArrayAdapterNoFilter extends ArrayAdapter<String> {
 
-	    public ArrayAdapterNoFilter(Context context, int textViewResourceId) {
-	        super(context, textViewResourceId);
-	    }
+		public ArrayAdapterNoFilter(Context context, int textViewResourceId) {
+			super(context, textViewResourceId);
+		}
 
-	    private static final NoFilter NO_FILTER = new NoFilter();
+		private static final NoFilter NO_FILTER = new NoFilter();
 
-	    @Override
-	    public Filter getFilter() {
-	        return NO_FILTER;
-	    }
+		@Override
+		public Filter getFilter() {
+			return NO_FILTER;
+		}
 
-	    private static class NoFilter extends Filter {
-	        protected FilterResults performFiltering(CharSequence prefix) {
-	            return new FilterResults();
-	        }
+		private static class NoFilter extends Filter {
+			protected FilterResults performFiltering(CharSequence prefix) {
+				return new FilterResults();
+			}
 
-	        protected void publishResults(CharSequence constraint, FilterResults results) {
-	            // Do nothing
-	        }
-	    }
+			protected void publishResults(CharSequence constraint, FilterResults results) {
+				// Do nothing
+			}
+		}
 	}
 }
