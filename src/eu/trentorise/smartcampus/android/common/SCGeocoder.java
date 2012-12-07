@@ -32,6 +32,11 @@ public class SCGeocoder {
 	private String url = "https://maps.googleapis.com/maps/api/geocode/";
 	private String output = "json";
 
+	public SCGeocoder(Context context) {
+		mContext = context;
+		mGeocoder = new Geocoder(mContext, mLocale);
+	}
+	
 	public SCGeocoder(Context context, Locale locale) {
 		mContext = context;
 		mLocale = locale;

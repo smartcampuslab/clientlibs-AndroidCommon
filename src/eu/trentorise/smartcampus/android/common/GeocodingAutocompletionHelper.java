@@ -5,7 +5,6 @@ import java.util.List;
 
 import android.content.Context;
 import android.location.Address;
-import android.location.Geocoder;
 import android.os.Handler;
 import android.os.Message;
 import android.text.Editable;
@@ -36,8 +35,8 @@ public class GeocodingAutocompletionHelper implements TextWatcher, OnItemClickLi
 	private Double llLat = null, llLong = null, urLat = null, urLong = null;
 	private OnAddressSelectedListener listener;
 
-	public GeocodingAutocompletionHelper(Context context, AutoCompleteTextView autoComplete, double llLat,
-			double llLong, double urLat, double urLong) {
+	public GeocodingAutocompletionHelper(Context context, AutoCompleteTextView autoComplete, double llLat, double llLong, double urLat,
+			double urLong) {
 		this(context, autoComplete);
 		this.llLat = llLat;
 		this.llLong = llLong;
@@ -118,14 +117,14 @@ public class GeocodingAutocompletionHelper implements TextWatcher, OnItemClickLi
 				try {
 					List<Address> response = null;
 					if (llLat != null && llLong != null && urLat != null && urLong != null) {
-						response = new Geocoder(context).getFromLocationName(enteredText, 10, llLat, llLong, urLat,
-								urLong);
+						response = new SCGeocoder(context).getFromLocationName(enteredText, 10, llLat, llLong, urLat, urLong);
 						if (response != null && !response.isEmpty()) {
 							notifyResult(response);
 							return;
 						}
+					} else {
+						response = new SCGeocoder(context).getFromLocationName(enteredText, 10);
 					}
-					response = new Geocoder(context).getFromLocationName(enteredText, 10);
 
 					notifyResult(response);
 				} catch (IOException ex) {
