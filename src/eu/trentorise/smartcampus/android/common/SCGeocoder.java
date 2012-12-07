@@ -17,6 +17,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.google.android.maps.GeoPoint;
+
 import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
@@ -36,13 +38,11 @@ public class SCGeocoder {
 
 	public SCGeocoder(Context context) {
 		mContext = context;
-		mGeocoder = new Geocoder(mContext, mLocale);
 	}
 	
 	public SCGeocoder(Context context, Locale locale) {
 		mContext = context;
 		mLocale = locale;
-		mGeocoder = new Geocoder(mContext, mLocale);
 	}
 
 	private boolean isConnected() {
@@ -64,6 +64,27 @@ public class SCGeocoder {
 //				upperRightLongitude);
 //	}
 
+	public List<Address> findAddressesAsync(final GeoPoint p) {
+		try {
+			return new AsyncTask<Void, Void, List<Address>>(){
+				@Override
+				protected List<Address> doInBackground(Void... params) {
+					try {
+						List<Address> addresses = getFromLocationSC(
+								p.getLatitudeE6() / 1E6, p.getLongitudeE6() / 1E6, true);
+						return addresses;
+					} catch (IOException e) {
+						e.printStackTrace();
+						return null;
+					}
+				}
+			}.execute().get();
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	
 	public List<Address> getFromLocationNameSC(String address, String region, String country, String administrativeArea, boolean sensor)
 			throws IOException {
 		List<Address> addrs = new ArrayList<Address>();
@@ -99,13 +120,13 @@ public class SCGeocoder {
 			sb.append("&");
 			sb.append("sensor=" + sensor);
 
-			SCGeocoderAsyncTask scgat = new SCGeocoderAsyncTask();
-			JSONObject jsonObject = scgat.execute(sb.toString()).get();
+			JSONObject jsonObject = execute(sb.toString());
 
 			addrs = jsonObject2addressList(jsonObject);
 		} catch (Exception e) {
 //			e.printStackTrace();
 //			throw new IOException(e.getMessage());
+			mGeocoder = new Geocoder(mContext, mLocale);
 			return mGeocoder.getFromLocationName(address, 10);
 		}
 
@@ -125,15 +146,14 @@ public class SCGeocoder {
 			sb.append("&");
 			sb.append("sensor=" + sensor);
 
-			SCGeocoderAsyncTask scgat = new SCGeocoderAsyncTask();
-			JSONObject jsonObject;
-			jsonObject = scgat.execute(sb.toString()).get();
+			JSONObject jsonObject = execute(sb.toString());
 
 			addrs = jsonObject2addressList(jsonObject);
 		} catch (Exception e) {
 //			e.printStackTrace();
 //			throw new IOException(e.getMessage());
-			return mGeocoder.getFromLocation(lat, lat, 10);
+			mGeocoder = new Geocoder(mContext, mLocale);
+			return mGeocoder.getFromLocation(lat, lng, 10);
 		}
 
 		return addrs;
@@ -189,39 +209,37 @@ public class SCGeocoder {
 		return (s != null && s.length() > 0);
 	}
 
-	private class SCGeocoderAsyncTask extends AsyncTask<String, Void, JSONObject> {
-		@Override
-		protected JSONObject doInBackground(String... strings) {
-			HttpGet httpGet = new HttpGet(strings[0]);
-			HttpClient client = new DefaultHttpClient();
-			HttpResponse response;
-			StringBuilder stringBuilder = new StringBuilder();
+	private JSONObject execute(String query) {
+		HttpGet httpGet = new HttpGet(query);
+		HttpClient client = new DefaultHttpClient();
+		HttpResponse response;
+		StringBuilder stringBuilder = new StringBuilder();
 
-			try {
-				response = client.execute(httpGet);
-				HttpEntity entity = response.getEntity();
-				InputStream stream = entity.getContent();
-				int b;
-				while ((b = stream.read()) != -1) {
-					stringBuilder.append((char) b);
-				}
-			} catch (ClientProtocolException e) {
-				// TODO
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO
-				e.printStackTrace();
+		try {
+			response = client.execute(httpGet);
+			HttpEntity entity = response.getEntity();
+			InputStream stream = entity.getContent();
+			int b;
+			while ((b = stream.read()) != -1) {
+				stringBuilder.append((char) b);
 			}
-
-			JSONObject jsonObject = new JSONObject();
-			try {
-				jsonObject = new JSONObject(stringBuilder.toString());
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-			return jsonObject;
+		} catch (ClientProtocolException e) {
+			// TODO
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO
+			e.printStackTrace();
 		}
+
+		JSONObject jsonObject = new JSONObject();
+		try {
+			jsonObject = new JSONObject(stringBuilder.toString());
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return jsonObject;
+
 	}
 }

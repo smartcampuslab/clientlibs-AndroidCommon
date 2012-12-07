@@ -5,11 +5,11 @@ import java.util.List;
 
 import android.content.Context;
 import android.location.Address;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -33,6 +33,7 @@ public class GeocodingAutocompletionHelper implements TextWatcher, OnItemClickLi
 	private MyMessageHandler messageHandler = null;
 	private OnAddressSelectedListener listener;
 	private String region = null, country = null, administrativeArea = null;
+	private Context context;
 
 	public GeocodingAutocompletionHelper(Context context, AutoCompleteTextView autoComplete,String region, String country, String administrativeArea) {
 		this(context, autoComplete);
@@ -43,6 +44,7 @@ public class GeocodingAutocompletionHelper implements TextWatcher, OnItemClickLi
 
 	public GeocodingAutocompletionHelper(Context context, AutoCompleteTextView autoComplete) {
 		super();
+		this.context = context;
 		autoCompleteAdapter = new ArrayAdapterNoFilter(context, R.layout.dd_list);
 		autoCompleteAdapter.setNotifyOnChange(false);
 
@@ -51,7 +53,7 @@ public class GeocodingAutocompletionHelper implements TextWatcher, OnItemClickLi
 		autoComplete.setThreshold(THRESHOLD);
 		autoComplete.setAdapter(autoCompleteAdapter);
 
-		messageHandler = new MyMessageHandler(context);
+		messageHandler = new MyMessageHandler();
 	}
 
 	public void setOnAddressSelectedListener(OnAddressSelectedListener listener) {
@@ -100,31 +102,34 @@ public class GeocodingAutocompletionHelper implements TextWatcher, OnItemClickLi
 
 	private class MyMessageHandler extends Handler {
 
-		private Context context;
-
-		public MyMessageHandler(Context context) {
-			this.context = context;
-		}
-
 		@Override
 		public void handleMessage(Message msg) {
 			if (msg.what == MESSAGE_TEXT_CHANGED) {
 				String enteredText = (String) msg.obj;
-
-				try {
-					List<Address> response = null;
-					response = new SCGeocoder(context).getFromLocationNameSC(enteredText, region, country, administrativeArea, true);
-					if (response != null && !response.isEmpty()) {
-						notifyResult(response);
-						return;
-					}
-				} catch (IOException ex) {
-					Log.e(getClass().getName(), "Failed to get autocomplete suggestions", ex);
-				}
+				new AddressAsyncTask().execute(enteredText);
 			}
 		}
 	}
 
+	private class AddressAsyncTask extends AsyncTask<String, Void, List<Address>> {
+		@Override
+		protected List<Address> doInBackground(String... params) {
+			try {
+				return new SCGeocoder(context).getFromLocationNameSC(params[0], region, country, administrativeArea, true);
+			} catch (IOException e) {
+				return null;
+			}
+		}
+
+		@Override
+		protected void onPostExecute(List<Address> response) {
+			if (response != null && !response.isEmpty()) {
+				notifyResult(response);
+			}
+		}
+		
+	}
+	
 	public static class ArrayAdapterNoFilter extends ArrayAdapter<String> {
 
 		public ArrayAdapterNoFilter(Context context, int textViewResourceId) {
