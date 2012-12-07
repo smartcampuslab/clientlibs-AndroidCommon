@@ -20,6 +20,8 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 
 public class SCGeocoder {
@@ -43,24 +45,31 @@ public class SCGeocoder {
 		mGeocoder = new Geocoder(mContext, mLocale);
 	}
 
-	public List<Address> getFromLocation(double latitude, double longitude, int maxResults) throws IOException {
-		return mGeocoder.getFromLocation(latitude, longitude, maxResults);
+	private boolean isConnected() {
+		NetworkInfo info = ((ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
+		return info != null && info.isConnected();
 	}
+	
+//	public List<Address> getFromLocation(double latitude, double longitude, int maxResults) throws IOException {
+//		return mGeocoder.getFromLocation(latitude, longitude, maxResults);
+//	}
 
-	public List<Address> getFromLocationName(String locationName, int maxResults) throws IOException {
-		return mGeocoder.getFromLocationName(locationName, maxResults);
-	}
+//	public List<Address> getFromLocationName(String locationName, int maxResults) throws IOException {
+//		return mGeocoder.getFromLocationName(locationName, maxResults);
+//	}
 
-	public List<Address> getFromLocationName(String locationName, int maxResults, double lowerLeftLatitude, double lowerLeftLongitude,
-			double upperRightLatitude, double upperRightLongitude) throws IOException {
-		return mGeocoder.getFromLocationName(locationName, maxResults, lowerLeftLatitude, lowerLeftLongitude, upperRightLatitude,
-				upperRightLongitude);
-	}
+//	public List<Address> getFromLocationName(String locationName, int maxResults, double lowerLeftLatitude, double lowerLeftLongitude,
+//			double upperRightLatitude, double upperRightLongitude) throws IOException {
+//		return mGeocoder.getFromLocationName(locationName, maxResults, lowerLeftLatitude, lowerLeftLongitude, upperRightLatitude,
+//				upperRightLongitude);
+//	}
 
 	public List<Address> getFromLocationNameSC(String address, String region, String country, String administrativeArea, boolean sensor)
 			throws IOException {
 		List<Address> addrs = new ArrayList<Address>();
 
+		if (!isConnected()) throw new IOException("No connection");
+		
 		try {
 			StringBuilder sb = new StringBuilder();
 			sb.append(url + output);
@@ -95,8 +104,9 @@ public class SCGeocoder {
 
 			addrs = jsonObject2addressList(jsonObject);
 		} catch (Exception e) {
-			e.printStackTrace();
-			throw new IOException(e.getMessage());
+//			e.printStackTrace();
+//			throw new IOException(e.getMessage());
+			return mGeocoder.getFromLocationName(address, 10);
 		}
 
 		return addrs;
@@ -104,6 +114,8 @@ public class SCGeocoder {
 
 	public List<Address> getFromLocationSC(double lat, double lng, boolean sensor) throws IOException {
 		List<Address> addrs = new ArrayList<Address>();
+
+		if (!isConnected()) throw new IOException("No connection");
 
 		try {
 			StringBuilder sb = new StringBuilder();
@@ -119,8 +131,9 @@ public class SCGeocoder {
 
 			addrs = jsonObject2addressList(jsonObject);
 		} catch (Exception e) {
-			e.printStackTrace();
-			throw new IOException(e.getMessage());
+//			e.printStackTrace();
+//			throw new IOException(e.getMessage());
+			return mGeocoder.getFromLocation(lat, lat, 10);
 		}
 
 		return addrs;

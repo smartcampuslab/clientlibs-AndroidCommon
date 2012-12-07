@@ -31,17 +31,14 @@ public class GeocodingAutocompletionHelper implements TextWatcher, OnItemClickLi
 	List<Address> autoCompleteSuggestionAddresses = null;
 
 	private MyMessageHandler messageHandler = null;
-
-	private Double llLat = null, llLong = null, urLat = null, urLong = null;
 	private OnAddressSelectedListener listener;
+	private String region = null, country = null, administrativeArea = null;
 
-	public GeocodingAutocompletionHelper(Context context, AutoCompleteTextView autoComplete, double llLat, double llLong, double urLat,
-			double urLong) {
+	public GeocodingAutocompletionHelper(Context context, AutoCompleteTextView autoComplete,String region, String country, String administrativeArea) {
 		this(context, autoComplete);
-		this.llLat = llLat;
-		this.llLong = llLong;
-		this.urLat = urLat;
-		this.urLong = urLong;
+		this.region = region;
+		this.administrativeArea = administrativeArea;
+		this.country = country;
 	}
 
 	public GeocodingAutocompletionHelper(Context context, AutoCompleteTextView autoComplete) {
@@ -116,17 +113,11 @@ public class GeocodingAutocompletionHelper implements TextWatcher, OnItemClickLi
 
 				try {
 					List<Address> response = null;
-					if (llLat != null && llLong != null && urLat != null && urLong != null) {
-						response = new SCGeocoder(context).getFromLocationName(enteredText, 10, llLat, llLong, urLat, urLong);
-						if (response != null && !response.isEmpty()) {
-							notifyResult(response);
-							return;
-						}
-					} else {
-						response = new SCGeocoder(context).getFromLocationName(enteredText, 10);
+					response = new SCGeocoder(context).getFromLocationNameSC(enteredText, region, country, administrativeArea, true);
+					if (response != null && !response.isEmpty()) {
+						notifyResult(response);
+						return;
 					}
-
-					notifyResult(response);
 				} catch (IOException ex) {
 					Log.e(getClass().getName(), "Failed to get autocomplete suggestions", ex);
 				}
