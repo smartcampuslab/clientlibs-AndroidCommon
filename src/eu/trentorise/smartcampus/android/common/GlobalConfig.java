@@ -18,7 +18,7 @@ public class GlobalConfig {
 	// Access mode (private to application and other ones with same Shared UID)
 	private static final int ACCESS = Context.MODE_PRIVATE|Context.CONTEXT_RESTRICTED;
 
-	private static final String DEF_APP_HOST = "https://vas-dev.smartcampuslab.it";
+	private static final String DEF_APP_HOST = "https://vas.smartcampuslab.it";
 	private static String appUrl = null;
 	
 	public static void setAppUrl(Context ctx, String url) throws NameNotFoundException {
