@@ -35,7 +35,8 @@ public class GeocodingAutocompletionHelper implements TextWatcher, OnItemClickLi
 	private String region = null, country = null, administrativeArea = null;
 	private Context context;
 
-	public GeocodingAutocompletionHelper(Context context, AutoCompleteTextView autoComplete,String region, String country, String administrativeArea) {
+	public GeocodingAutocompletionHelper(Context context, AutoCompleteTextView autoComplete, String region, String country,
+			String administrativeArea) {
 		this(context, autoComplete);
 		this.region = region;
 		this.administrativeArea = administrativeArea;
@@ -45,7 +46,7 @@ public class GeocodingAutocompletionHelper implements TextWatcher, OnItemClickLi
 	public GeocodingAutocompletionHelper(Context context, AutoCompleteTextView autoComplete) {
 		super();
 		this.context = context;
-		autoCompleteAdapter = new ArrayAdapterNoFilter(context, R.layout.dd_list);
+		autoCompleteAdapter = new ArrayAdapterNoFilter(context, R.layout.dd_list, R.id.dd_textview);
 		autoCompleteAdapter.setNotifyOnChange(false);
 
 		autoComplete.addTextChangedListener(this);
@@ -127,13 +128,13 @@ public class GeocodingAutocompletionHelper implements TextWatcher, OnItemClickLi
 				notifyResult(response);
 			}
 		}
-		
+
 	}
-	
+
 	public static class ArrayAdapterNoFilter extends ArrayAdapter<String> {
 
-		public ArrayAdapterNoFilter(Context context, int textViewResourceId) {
-			super(context, textViewResourceId);
+		public ArrayAdapterNoFilter(Context context, int resource, int textViewResourceId) {
+			super(context, resource, textViewResourceId);
 		}
 
 		private static final NoFilter NO_FILTER = new NoFilter();
