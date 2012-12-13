@@ -1,7 +1,6 @@
 package eu.trentorise.smartcampus.android.common;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,11 +12,11 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.protocol.HTTP;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import com.google.android.maps.GeoPoint;
 
 import android.content.Context;
 import android.location.Address;
@@ -25,6 +24,8 @@ import android.location.Geocoder;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
+
+import com.google.android.maps.GeoPoint;
 
 public class SCGeocoder {
 
@@ -39,39 +40,44 @@ public class SCGeocoder {
 	public SCGeocoder(Context context) {
 		mContext = context;
 	}
-	
+
 	public SCGeocoder(Context context, Locale locale) {
 		mContext = context;
 		mLocale = locale;
 	}
 
 	private boolean isConnected() {
-		NetworkInfo info = ((ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
+		NetworkInfo info = ((ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE))
+				.getActiveNetworkInfo();
 		return info != null && info.isConnected();
 	}
-	
-//	public List<Address> getFromLocation(double latitude, double longitude, int maxResults) throws IOException {
-//		return mGeocoder.getFromLocation(latitude, longitude, maxResults);
-//	}
 
-//	public List<Address> getFromLocationName(String locationName, int maxResults) throws IOException {
-//		return mGeocoder.getFromLocationName(locationName, maxResults);
-//	}
+	// public List<Address> getFromLocation(double latitude, double longitude,
+	// int maxResults) throws IOException {
+	// return mGeocoder.getFromLocation(latitude, longitude, maxResults);
+	// }
 
-//	public List<Address> getFromLocationName(String locationName, int maxResults, double lowerLeftLatitude, double lowerLeftLongitude,
-//			double upperRightLatitude, double upperRightLongitude) throws IOException {
-//		return mGeocoder.getFromLocationName(locationName, maxResults, lowerLeftLatitude, lowerLeftLongitude, upperRightLatitude,
-//				upperRightLongitude);
-//	}
+	// public List<Address> getFromLocationName(String locationName, int
+	// maxResults) throws IOException {
+	// return mGeocoder.getFromLocationName(locationName, maxResults);
+	// }
+
+	// public List<Address> getFromLocationName(String locationName, int
+	// maxResults, double lowerLeftLatitude, double lowerLeftLongitude,
+	// double upperRightLatitude, double upperRightLongitude) throws IOException
+	// {
+	// return mGeocoder.getFromLocationName(locationName, maxResults,
+	// lowerLeftLatitude, lowerLeftLongitude, upperRightLatitude,
+	// upperRightLongitude);
+	// }
 
 	public List<Address> findAddressesAsync(final GeoPoint p) {
 		try {
-			return new AsyncTask<Void, Void, List<Address>>(){
+			return new AsyncTask<Void, Void, List<Address>>() {
 				@Override
 				protected List<Address> doInBackground(Void... params) {
 					try {
-						List<Address> addresses = getFromLocationSC(
-								p.getLatitudeE6() / 1E6, p.getLongitudeE6() / 1E6, true);
+						List<Address> addresses = getFromLocationSC(p.getLatitudeE6() / 1E6, p.getLongitudeE6() / 1E6, true);
 						return addresses;
 					} catch (IOException e) {
 						e.printStackTrace();
@@ -84,13 +90,13 @@ public class SCGeocoder {
 		}
 	}
 
-	
-	public List<Address> getFromLocationNameSC(String address, String region, String country, String administrativeArea, boolean sensor)
-			throws IOException {
+	public List<Address> getFromLocationNameSC(String address, String region, String country, String administrativeArea,
+			boolean sensor) throws IOException {
 		List<Address> addrs = new ArrayList<Address>();
 
-		if (!isConnected()) throw new IOException("No connection");
-		
+		if (!isConnected())
+			throw new IOException("No connection");
+
 		try {
 			StringBuilder sb = new StringBuilder();
 			sb.append(url + output);
@@ -124,8 +130,8 @@ public class SCGeocoder {
 
 			addrs = jsonObject2addressList(jsonObject);
 		} catch (Exception e) {
-//			e.printStackTrace();
-//			throw new IOException(e.getMessage());
+			// e.printStackTrace();
+			// throw new IOException(e.getMessage());
 			mGeocoder = new Geocoder(mContext, mLocale);
 			return mGeocoder.getFromLocationName(address, 10);
 		}
@@ -136,7 +142,8 @@ public class SCGeocoder {
 	public List<Address> getFromLocationSC(double lat, double lng, boolean sensor) throws IOException {
 		List<Address> addrs = new ArrayList<Address>();
 
-		if (!isConnected()) throw new IOException("No connection");
+		if (!isConnected())
+			throw new IOException("No connection");
 
 		try {
 			StringBuilder sb = new StringBuilder();
@@ -150,8 +157,8 @@ public class SCGeocoder {
 
 			addrs = jsonObject2addressList(jsonObject);
 		} catch (Exception e) {
-//			e.printStackTrace();
-//			throw new IOException(e.getMessage());
+			// e.printStackTrace();
+			// throw new IOException(e.getMessage());
 			mGeocoder = new Geocoder(mContext, mLocale);
 			return mGeocoder.getFromLocation(lat, lng, 10);
 		}
@@ -213,16 +220,12 @@ public class SCGeocoder {
 		HttpGet httpGet = new HttpGet(query);
 		HttpClient client = new DefaultHttpClient();
 		HttpResponse response;
-		StringBuilder stringBuilder = new StringBuilder();
+		String json = "";
 
 		try {
 			response = client.execute(httpGet);
 			HttpEntity entity = response.getEntity();
-			InputStream stream = entity.getContent();
-			int b;
-			while ((b = stream.read()) != -1) {
-				stringBuilder.append((char) b);
-			}
+			json = EntityUtils.toString(entity, HTTP.UTF_8);
 		} catch (ClientProtocolException e) {
 			// TODO
 			e.printStackTrace();
@@ -233,9 +236,9 @@ public class SCGeocoder {
 
 		JSONObject jsonObject = new JSONObject();
 		try {
-			jsonObject = new JSONObject(stringBuilder.toString());
+			jsonObject = new JSONObject(json);
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
+			// TODO
 			e.printStackTrace();
 		}
 
