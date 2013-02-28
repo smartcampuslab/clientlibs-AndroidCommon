@@ -20,27 +20,11 @@
     <string name="tag_add">Add</string>
     <string name="create_tags">Tags</string>
 
-    <string name="follow_entity_arg_entity">entity</string>
-    <string name="follow_intent_action">eu.trentorise.smartcampus.cm.FOLLOW</string>
-
-    <string name="share_entity_arg_entity">entity</string>
-    <string name="share_intent_action">eu.trentorise.smartcampus.cm.SHARE</string>
-    
-    <string name="navigate_arg_from">from</string>
-    <string name="navigate_arg_to">to</string>
-    <string name="navigate_intent_action">eu.trentorise.smartcampus.jp.NAVIGATE</string>
-
-    <string name="view_intent_action">eu.trentorise.smartcampus.VIEW</string>
-    <string name="view_intent_arg_data">data</string>
-    <string name="view_intent_arg_entity_id">entityId</string>
-    <string name="view_intent_arg_entity_type">entityType</string>
-    <string name="view_intent_arg_object_id">objectId</string>
-    
     <string name="app_not_installed">No suitable application found. Install the application from the SmartCampus launcher.</string>
    
     <string name="dialog_connectivity_message">No suitable connection found. Open settings.</string>
     <string name="dialog_connectivity_title">Connectivity problem</string>
     <string name="ok">OK</string>
-    <string name="cancel">Cancel</string>
+    <string name="cancel">Annulla</string>
     
 </resources>
