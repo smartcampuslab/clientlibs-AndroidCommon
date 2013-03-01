@@ -16,14 +16,14 @@
 -->
 <resources>
 
-    <string name="tag_dialog_title">Enter tags:</string>
-    <string name="tag_add">Add</string>
+    <string name="tag_dialog_title">Inserire tags:</string>
+    <string name="tag_add">Aggiungi</string>
     <string name="create_tags">Tags</string>
 
-    <string name="app_not_installed">No suitable application found. Install the application from the SmartCampus launcher.</string>
+    <string name="app_not_installed">Nessuna applicazione adatta è stata trovata. Installala dal launcher di SmartCampus.</string>
    
-    <string name="dialog_connectivity_message">No suitable connection found. Open settings.</string>
-    <string name="dialog_connectivity_title">Connectivity problem</string>
+    <string name="dialog_connectivity_message">Connessione assente. Aprire impostazioni.</string>
+    <string name="dialog_connectivity_title">Problema di connessione</string>
     <string name="ok">OK</string>
     <string name="cancel">Annulla</string>
     
