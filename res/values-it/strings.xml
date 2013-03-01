@@ -26,5 +26,6 @@
     <string name="dialog_connectivity_title">Problema di connessione</string>
     <string name="ok">OK</string>
     <string name="cancel">Annulla</string>
-    
+    <string name="loading"> Caricamento in corso &#8230;</string> 
+    <string name="problem_closing">Problema nel chiudere la finestra .</string> 
 </resources>

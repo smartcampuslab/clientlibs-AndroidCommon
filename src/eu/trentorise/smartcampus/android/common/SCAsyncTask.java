@@ -58,7 +58,7 @@ public class SCAsyncTask<Params, Progress, Result> extends AsyncTask<Params, Pro
 			try {
 				progress.cancel();
 			} catch (Exception e) {
-				Log.w(getClass().getName(),"Problem closing progress dialog: "+e.getMessage());
+				Log.w(getClass().getName(),activity.getString(R.string.problem_closing)+e.getMessage());
 			}
 		}
 		if (status == STATUS.OK) {
@@ -93,7 +93,7 @@ public class SCAsyncTask<Params, Progress, Result> extends AsyncTask<Params, Pro
 
 	@Override
 	protected void onPreExecute() {
-		progress  = ProgressDialog.show(activity, "", "Loading. Please wait...", true);
+		progress  = ProgressDialog.show(activity, "", activity.getString(R.string.loading), true);
 		super.onPreExecute();
 	}
 

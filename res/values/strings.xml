@@ -42,5 +42,8 @@
     <string name="dialog_connectivity_title">Connectivity problem</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
+    <string name="loading">Loading. Please wait...</string> 
+    <string name="problem_closing">Problem closing progress dialog: .</string> 
+    
     
 </resources>
