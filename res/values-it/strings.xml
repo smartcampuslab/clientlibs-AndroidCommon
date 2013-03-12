@@ -20,9 +20,9 @@
     <string name="tag_add">Aggiungi</string>
     <string name="create_tags">Tags</string>
 
-    <string name="app_not_installed">Nessuna applicazione adatta è stata trovata. Installala dal launcher di SmartCampus.</string>
+    <string name="app_not_installed">L\'applicazione richiesta non è stata trovata. Puoi installarla dal launcher di SmartCampus.</string>
    
-    <string name="dialog_connectivity_message">Connessione assente. Aprire impostazioni.</string>
+    <string name="dialog_connectivity_message">Connessione non disponibile. Verificare le impostazioni.</string>
     <string name="dialog_connectivity_title">Problema di connessione</string>
     <string name="ok">OK</string>
     <string name="cancel">Annulla</string>
