@@ -18,8 +18,11 @@ package eu.trentorise.smartcampus.android.common;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -51,6 +54,10 @@ public class SCGeocoder {
 	private String ENC = "UTF-8";
 	private String url = "https://maps.googleapis.com/maps/api/geocode/";
 	private String output = "json";
+	
+	private static Set<String> nonTraversibleTypes = new HashSet<String>(
+			Arrays.asList(new String[]{"establishment","transit_station","train_station","bus_station"})
+	);
 
 	public SCGeocoder(Context context) {
 		mContext = context;
@@ -106,7 +113,7 @@ public class SCGeocoder {
 	}
 
 	public List<Address> getFromLocationNameSC(String address, String region, String country, String administrativeArea,
-			boolean sensor) throws IOException {
+			boolean filterTraversible) throws IOException {
 		List<Address> addrs = new ArrayList<Address>();
 
 		if (!isConnected())
@@ -139,22 +146,22 @@ public class SCGeocoder {
 			}
 
 			sb.append("&");
-			sb.append("sensor=" + sensor);
+			sb.append("sensor=true");
 
 			JSONObject jsonObject = execute(sb.toString());
 
-			addrs = jsonObject2addressList(jsonObject);
+			addrs = jsonObject2addressList(jsonObject, filterTraversible);
 		} catch (Exception e) {
 			// e.printStackTrace();
 			// throw new IOException(e.getMessage());
 			mGeocoder = new Geocoder(mContext, mLocale);
-			return mGeocoder.getFromLocationName(address, 10);
+			return mGeocoder.getFromLocationName(address, 3);
 		}
 
 		return addrs;
 	}
 
-	public List<Address> getFromLocationSC(double lat, double lng, boolean sensor) throws IOException {
+	public List<Address> getFromLocationSC(double lat, double lng, boolean filterTraversible) throws IOException {
 		List<Address> addrs = new ArrayList<Address>();
 
 		if (!isConnected())
@@ -166,22 +173,22 @@ public class SCGeocoder {
 			sb.append("?");
 			sb.append("latlng=" + lat + "," + lng);
 			sb.append("&");
-			sb.append("sensor=" + sensor);
+			sb.append("sensor=true");
 
 			JSONObject jsonObject = execute(sb.toString());
 
-			addrs = jsonObject2addressList(jsonObject);
+			addrs = jsonObject2addressList(jsonObject, filterTraversible);
 		} catch (Exception e) {
 			// e.printStackTrace();
 			// throw new IOException(e.getMessage());
 			mGeocoder = new Geocoder(mContext, mLocale);
-			return mGeocoder.getFromLocation(lat, lng, 10);
+			return mGeocoder.getFromLocation(lat, lng, 3);
 		}
 
 		return addrs;
 	}
 
-	private List<Address> jsonObject2addressList(JSONObject jsonObject) throws IOException, JSONException {
+	private List<Address> jsonObject2addressList(JSONObject jsonObject, boolean filterTraversible) throws IOException, JSONException {
 		List<Address> addrs = new ArrayList<Address>();
 
 		if (!jsonObject.getString("status").equalsIgnoreCase("ok")) {
@@ -193,25 +200,39 @@ public class SCGeocoder {
 			return addrs;
 		}
 
+		Set<String> typeSet = new HashSet<String>(); 
 		for (int i = 0; i < results.length(); i++) {
 			Address address = new Address(mLocale);
 			JSONObject a = results.getJSONObject(i);
 			address.setAddressLine(0, a.getString("formatted_address"));
 
 			JSONArray aComponents = a.getJSONArray("address_components");
+			if (filterTraversible) {
+				JSONArray typesArray = a.getJSONArray("types");
+				typeSet.clear();
+				if (typesArray != null) {
+					for (int k = 0; k < typesArray.length(); k++) {
+						typeSet.add(typesArray.getString(k));
+					}
+				}
+				if (nonTraversibleTypes.containsAll(typeSet)) {
+					continue;
+				}
+			}
+
 			for (int j = 0; j < aComponents.length(); j++) {
 				JSONObject comp = aComponents.getJSONObject(j);
-
-				if (comp.getJSONArray("types").toString().contains("locality")) {
+				String compTypeString = comp.getJSONArray("types").toString();
+				if (compTypeString.contains("locality")) {
 					address.setLocality(comp.getString("long_name"));
-				} else if (comp.getJSONArray("types").toString().contains("administrative_area_level_2")) {
+				} else if (compTypeString.contains("administrative_area_level_2")) {
 					address.setSubAdminArea(comp.getString("long_name"));
-				} else if (comp.getJSONArray("types").toString().contains("administrative_area_level_1")) {
+				} else if (compTypeString.contains("administrative_area_level_1")) {
 					address.setAdminArea(comp.getString("long_name"));
-				} else if (comp.getJSONArray("types").toString().contains("country")) {
+				} else if (compTypeString.contains("country")) {
 					address.setCountryName(comp.getString("long_name"));
 					address.setCountryCode(comp.getString("short_name"));
-				} else if (comp.getJSONArray("types").toString().contains("postal_code")) {
+				} else if (compTypeString.contains("postal_code")) {
 					address.setPostalCode(comp.getString("long_name"));
 				}
 			}
@@ -242,10 +263,8 @@ public class SCGeocoder {
 			HttpEntity entity = response.getEntity();
 			json = EntityUtils.toString(entity, HTTP.UTF_8);
 		} catch (ClientProtocolException e) {
-			// TODO
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO
 			e.printStackTrace();
 		}
 
