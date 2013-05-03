@@ -18,6 +18,8 @@ package eu.trentorise.smartcampus.android.common;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import eu.trentorise.smartcampus.protocolcarrier.exceptions.ProtocolException;
 
@@ -28,6 +30,8 @@ public class GlobalConfig {
 	private static final String P_APP_BASE_URL= "APP_BASE_URL";
 	// Shared package path
 	private static final String SHARED_PACKAGE = "eu.trentorise.smartcampus.launcher";
+	public static final String APP_METADATA_SHARED_PACKAGE = "SHARED_PACKAGE";
+
 	// Name for preferences
 	private static final String COMMON_PREF = "COMMON_PREF";
 	// Access mode (private to application and other ones with same Shared UID)
@@ -64,9 +68,17 @@ public class GlobalConfig {
 		}
 		return appUrl;
 	}
-
+	private static String getSharedPackageFromMetadata(Context ctx) {
+		try {
+			ApplicationInfo info = ctx.getPackageManager().getApplicationInfo(ctx.getPackageName(), PackageManager.GET_META_DATA);
+			if (info != null && info.metaData != null && info.metaData.containsKey(APP_METADATA_SHARED_PACKAGE)) 
+				return info.metaData.getString(APP_METADATA_SHARED_PACKAGE);
+		} catch (NameNotFoundException e) {
+		}
+		return SHARED_PACKAGE;
+	}
 	private static SharedPreferences getPrefs(Context context) throws NameNotFoundException {
-		Context sharedContext = context.createPackageContext(SHARED_PACKAGE, ACCESS);
+		Context sharedContext = context.createPackageContext(getSharedPackageFromMetadata(context), ACCESS);
 		return sharedContext.getSharedPreferences(COMMON_PREF, ACCESS);
 	}
 

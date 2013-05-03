@@ -18,6 +18,7 @@ package eu.trentorise.smartcampus.android.common.listing;
 import java.util.List;
 
 import android.app.Activity;
+import android.os.Bundle;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.ArrayAdapter;
@@ -48,23 +49,27 @@ public abstract class AbstractLstingFragment<T> extends SherlockFragment impleme
 	}
 
 	public void setAdapter(ArrayAdapter<T> adapter) {
+		getListView().setAdapter(adapter);
 		this.adapter = adapter;
 	}
 
 	@Override
 	public void onStart() {
 		initData();
-		getListView().setOnScrollListener(this);
 		super.onStart();
 	}
 
 	protected void initData() {
-		position = 0;
-		lastSize = 0;
-		if (adapter != null) {
+
+		if (adapter != null && adapter.getCount()==0) {
+			position = 0;
+			lastSize = 0;
+			
 			if (loadOnStart()) load();
 			getListView().setAdapter(adapter);
 		}
+		getListView().setOnScrollListener(this);
+		
 	}
 
 	protected boolean loadOnStart() {
