@@ -11,6 +11,7 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.util.Log;
 import eu.trentorise.smartcampus.android.common.Utils;
 
 public class ParamsHelper {
@@ -62,8 +63,7 @@ public class ParamsHelper {
 			JSONObject jsonObject = new JSONObject(json);
 			output = jsonObject.toString();
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.e("ParamsHelper", e.getMessage());
 		}
 
 		return output;
