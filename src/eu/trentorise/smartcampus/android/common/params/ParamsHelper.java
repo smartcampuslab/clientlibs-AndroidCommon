@@ -6,6 +6,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Map;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.Context;
 import android.content.res.AssetManager;
 import eu.trentorise.smartcampus.android.common.Utils;
@@ -30,6 +33,8 @@ public class ParamsHelper {
 	}
 
 	private static String getStringFromInputStream(InputStream is) {
+		String output = new String();
+
 		BufferedReader br = null;
 		StringBuilder sb = new StringBuilder();
 		String line;
@@ -51,7 +56,17 @@ public class ParamsHelper {
 			}
 		}
 
-		return sb.toString();
+		String json = sb.toString();
+
+		try {
+			JSONObject jsonObject = new JSONObject(json);
+			output = jsonObject.toString();
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return output;
 	}
 
 }
