@@ -27,9 +27,38 @@ public class AppHelper {
 		try {
 			ctx.startActivity(intent);
 		} catch (ActivityNotFoundException e) {
-			Log.e(AppHelper.class.getName(),""+e.getMessage());
-			Toast.makeText(ctx, ctx.getString(eu.trentorise.smartcampus.android.common.R.string.app_not_installed), Toast.LENGTH_LONG).show();
+			Log.e(AppHelper.class.getName(), "" + e.getMessage());
+			Toast.makeText(
+					ctx,
+					ctx.getString(eu.trentorise.smartcampus.android.common.R.string.app_not_installed),
+					Toast.LENGTH_LONG).show();
 		}
-
 	}
+
+	public static void startActivityForResultForApp(Intent intent,
+			Activity ctx, int requestCode) {
+		try {
+			ctx.startActivityForResult(intent, requestCode);
+		} catch (ActivityNotFoundException e) {
+			Log.e(AppHelper.class.getName(), "" + e.getMessage());
+			Toast.makeText(
+					ctx,
+					ctx.getString(eu.trentorise.smartcampus.android.common.R.string.app_not_installed),
+					Toast.LENGTH_LONG).show();
+		}
+	}
+
+	public static void startActivityForResultForApp(Intent intent,
+			android.support.v4.app.Fragment ctx, int requestCode) {
+		try {
+			ctx.startActivityForResult(intent, requestCode);
+		} catch (ActivityNotFoundException e) {
+			Log.e(AppHelper.class.getName(), "" + e.getMessage());
+			Toast.makeText(
+					ctx.getActivity(),
+					ctx.getString(eu.trentorise.smartcampus.android.common.R.string.app_not_installed),
+					Toast.LENGTH_LONG).show();
+		}
+	}
+
 }

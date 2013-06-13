@@ -38,33 +38,65 @@ import eu.trentorise.smartcampus.protocolcarrier.exceptions.SecurityException;
 public class FollowHelper {
 
 	private static final String SERVICE_TOPIC_PATH = "/smartcampus.vas.community-manager.web/eu.trentorise.smartcampus.cm.model.Topic";
-	private static final List<String> CONTENT_TYPES = Arrays.asList(new String[] { "location", "event", "narrative" });
+	private static final List<String> CONTENT_TYPES = Arrays
+			.asList(new String[] { "location", "event", "narrative" });
 
 	public static void follow(Activity ctx, FollowEntityObject obj) {
 		Intent intent = new Intent();
-		intent.setAction(ctx.getString(eu.trentorise.smartcampus.android.common.R.string.follow_intent_action));
-		intent.putExtra(ctx.getString(eu.trentorise.smartcampus.android.common.R.string.follow_entity_arg_entity), obj);
+		intent.setAction(ctx
+				.getString(eu.trentorise.smartcampus.android.common.R.string.follow_intent_action));
+		intent.putExtra(
+				ctx.getString(eu.trentorise.smartcampus.android.common.R.string.follow_entity_arg_entity),
+				obj);
 		AppHelper.startActivityForApp(intent, ctx);
 	}
 
-	public static Topic follow(Context ctx, String appToken, String authToken, FollowEntityObject obj)
-			throws ConnectionException, ProtocolException, SecurityException {
+	public static void follow(Activity ctx, FollowEntityObject obj,
+			int requestCode) {
+		Intent intent = new Intent();
+		intent.setAction(ctx
+				.getString(eu.trentorise.smartcampus.android.common.R.string.follow_intent_action));
+		intent.putExtra(
+				ctx.getString(eu.trentorise.smartcampus.android.common.R.string.follow_entity_arg_entity),
+				obj);
+		AppHelper.startActivityForResultForApp(intent, ctx, requestCode);
+	}
+
+	public static void follow(android.support.v4.app.Fragment ctx,
+			FollowEntityObject obj, int requestCode) {
+		Intent intent = new Intent();
+		intent.setAction(ctx
+				.getString(eu.trentorise.smartcampus.android.common.R.string.follow_intent_action));
+		intent.putExtra(
+				ctx.getString(eu.trentorise.smartcampus.android.common.R.string.follow_entity_arg_entity),
+				obj);
+		AppHelper.startActivityForResultForApp(intent, ctx, requestCode);
+	}
+
+	public static Topic follow(Context ctx, String appToken, String authToken,
+			FollowEntityObject obj) throws ConnectionException,
+			ProtocolException, SecurityException {
 		Topic topic = convertFEOtoTopic(obj);
 		topic = follow(ctx, appToken, authToken, topic);
 		return topic;
 	}
 
-	private static Topic follow(Context ctx, String appToken, String authToken, Topic input) throws ConnectionException,
-			ProtocolException, SecurityException {
+	private static Topic follow(Context ctx, String appToken, String authToken,
+			Topic input) throws ConnectionException, ProtocolException,
+			SecurityException {
 		String json = Utils.convertToJSON(input);
-		MessageRequest req = new MessageRequest(GlobalConfig.getAppUrl(ctx), SERVICE_TOPIC_PATH);
+		MessageRequest req = new MessageRequest(GlobalConfig.getAppUrl(ctx),
+				SERVICE_TOPIC_PATH);
 		req.setMethod(Method.POST);
 		req.setBody(json);
 		ProtocolCarrier mProtocolCarrier = new ProtocolCarrier(ctx, appToken);
-		MessageResponse res = mProtocolCarrier.invokeSync(req, appToken, authToken);
-		Topic object = Utils.convertJSONToObject(res.getBody(), input.getClass());
+		MessageResponse res = mProtocolCarrier.invokeSync(req, appToken,
+				authToken);
+		Topic object = Utils.convertJSONToObject(res.getBody(),
+				input.getClass());
 		if (object == null) {
-			throw new ProtocolException("Cannot parse remotely created object: " + res.getBody());
+			throw new ProtocolException(
+					"Cannot parse remotely created object: " + res.getBody());
 		}
 		return object;
 	}
