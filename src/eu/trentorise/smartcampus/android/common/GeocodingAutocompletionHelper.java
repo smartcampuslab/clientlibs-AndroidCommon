@@ -49,13 +49,20 @@ public class GeocodingAutocompletionHelper implements TextWatcher, OnItemClickLi
 	private OnAddressSelectedListener listener;
 	private String region = null, country = null, administrativeArea = null;
 	private Context context;
+	private double[] referenceLocation = null;
 
 	public GeocodingAutocompletionHelper(Context context, AutoCompleteTextView autoComplete, String region, String country,
 			String administrativeArea) {
+		this(context, autoComplete, region, administrativeArea, country, null);
+	}
+
+	public GeocodingAutocompletionHelper(Context context, AutoCompleteTextView autoComplete, String region, String country,
+			String administrativeArea, double[] referenceLocation) {
 		this(context, autoComplete);
 		this.region = region;
 		this.administrativeArea = administrativeArea;
 		this.country = country;
+		this.referenceLocation = referenceLocation;
 	}
 
 	public GeocodingAutocompletionHelper(Context context, AutoCompleteTextView autoComplete) {
@@ -131,7 +138,7 @@ public class GeocodingAutocompletionHelper implements TextWatcher, OnItemClickLi
 		@Override
 		protected List<Address> doInBackground(String... params) {
 			try {
-				return new SCGeocoder(context).getFromLocationNameSC(params[0], region, country, administrativeArea, true);
+				return new SCGeocoder(context).getFromLocationNameSC(params[0], region, country, administrativeArea, true, referenceLocation);
 			} catch (IOException e) {
 				return null;
 			}

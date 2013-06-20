@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -54,6 +56,11 @@ public class SCGeocoder {
 	private String ENC = "UTF-8";
 	private String url = "https://maps.googleapis.com/maps/api/geocode/";
 	private String output = "json";
+
+	
+	private static double rad(double p) {
+		return p*Math.PI/180;
+	}
 	
 	private static Set<String> nonTraversibleTypes = new HashSet<String>(
 			Arrays.asList(new String[]{"establishment","transit_station","train_station","bus_station"})
@@ -99,7 +106,7 @@ public class SCGeocoder {
 				@Override
 				protected List<Address> doInBackground(Void... params) {
 					try {
-						List<Address> addresses = getFromLocationSC(p.getLatitudeE6() / 1E6, p.getLongitudeE6() / 1E6, true);
+						List<Address> addresses = getFromLocationSC(p.getLatitudeE6() / 1E6, p.getLongitudeE6() / 1E6, true, null);
 						return addresses;
 					} catch (IOException e) {
 						e.printStackTrace();
@@ -113,7 +120,7 @@ public class SCGeocoder {
 	}
 
 	public List<Address> getFromLocationNameSC(String address, String region, String country, String administrativeArea,
-			boolean filterTraversible) throws IOException {
+			boolean filterTraversible, double[] referenceLocation) throws IOException {
 		List<Address> addrs = new ArrayList<Address>();
 
 		if (!isConnected())
@@ -150,7 +157,7 @@ public class SCGeocoder {
 
 			JSONObject jsonObject = execute(sb.toString());
 
-			addrs = jsonObject2addressList(jsonObject, filterTraversible);
+			addrs = jsonObject2addressList(jsonObject, filterTraversible, referenceLocation);
 		} catch (Exception e) {
 			// e.printStackTrace();
 			// throw new IOException(e.getMessage());
@@ -161,7 +168,7 @@ public class SCGeocoder {
 		return addrs;
 	}
 
-	public List<Address> getFromLocationSC(double lat, double lng, boolean filterTraversible) throws IOException {
+	public List<Address> getFromLocationSC(double lat, double lng, boolean filterTraversible, double[] referenceLocation) throws IOException {
 		List<Address> addrs = new ArrayList<Address>();
 
 		if (!isConnected())
@@ -177,18 +184,18 @@ public class SCGeocoder {
 
 			JSONObject jsonObject = execute(sb.toString());
 
-			addrs = jsonObject2addressList(jsonObject, filterTraversible);
+			addrs = jsonObject2addressList(jsonObject, filterTraversible, referenceLocation);
 		} catch (Exception e) {
 			// e.printStackTrace();
 			// throw new IOException(e.getMessage());
 			mGeocoder = new Geocoder(mContext, mLocale);
-			return mGeocoder.getFromLocation(lat, lng, 3);
+			return mGeocoder.getFromLocation(lat, lng, 10);
 		}
 
 		return addrs;
 	}
 
-	private List<Address> jsonObject2addressList(JSONObject jsonObject, boolean filterTraversible) throws IOException, JSONException {
+	private List<Address> jsonObject2addressList(JSONObject jsonObject, boolean filterTraversible, double[] referenceLocation) throws IOException, JSONException {
 		List<Address> addrs = new ArrayList<Address>();
 
 		if (!jsonObject.getString("status").equalsIgnoreCase("ok")) {
@@ -245,6 +252,10 @@ public class SCGeocoder {
 			addrs.add(address);
 		}
 
+		if (referenceLocation != null) {
+			Collections.sort(addrs, new DistanceComparator(referenceLocation));
+		}
+		
 		return addrs;
 	}
 
@@ -279,4 +290,24 @@ public class SCGeocoder {
 		return jsonObject;
 
 	}
+	
+	private class DistanceComparator implements Comparator<Address> {
+		private double[] referenceLocation = new double[]{45.891143,11.04018};
+		
+		public DistanceComparator(double[] referenceLocation) {
+			super();
+			this.referenceLocation = referenceLocation;
+		}
+		@Override
+		public int compare(Address lhs, Address rhs) {
+			return Double.compare(distance(new double[]{lhs.getLatitude(),lhs.getLongitude()},referenceLocation), distance(new double[]{rhs.getLatitude(),rhs.getLongitude()},referenceLocation));
+		}
+		private double distance(double[] from, double[] to) {
+			double x = (rad(to[1])-rad(from[1]))*Math.cos(rad(to[0])-rad(from[0]));
+			double y = rad(to[0])-rad(from[0]);
+			return 6731*Math.sqrt(x*x+y*y);
+		}
+		
+	};
+
 }
