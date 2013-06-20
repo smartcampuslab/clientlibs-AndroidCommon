@@ -129,6 +129,7 @@ public class GeocodingAutocompletionHelper implements TextWatcher, OnItemClickLi
 		public void handleMessage(Message msg) {
 			if (msg.what == MESSAGE_TEXT_CHANGED) {
 				String enteredText = (String) msg.obj;
+				
 				new AddressAsyncTask().execute(enteredText);
 			}
 		}

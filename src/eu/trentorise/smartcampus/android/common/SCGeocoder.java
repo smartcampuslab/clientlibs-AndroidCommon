@@ -57,6 +57,11 @@ public class SCGeocoder {
 	private String url = "https://maps.googleapis.com/maps/api/geocode/";
 	private String output = "json";
 
+	private static final Set<String> ADMIN_AREA_TYPES = new HashSet<String>();
+	static {
+		ADMIN_AREA_TYPES.add("administrative_area_level_2");
+		ADMIN_AREA_TYPES.add("political");
+	}
 	
 	private static double rad(double p) {
 		return p*Math.PI/180;
@@ -157,7 +162,7 @@ public class SCGeocoder {
 
 			JSONObject jsonObject = execute(sb.toString());
 
-			addrs = jsonObject2addressList(jsonObject, filterTraversible, referenceLocation);
+			addrs = jsonObject2addressList(jsonObject,region, country, administrativeArea, filterTraversible, referenceLocation);
 		} catch (Exception e) {
 			// e.printStackTrace();
 			// throw new IOException(e.getMessage());
@@ -184,7 +189,7 @@ public class SCGeocoder {
 
 			JSONObject jsonObject = execute(sb.toString());
 
-			addrs = jsonObject2addressList(jsonObject, filterTraversible, referenceLocation);
+			addrs = jsonObject2addressList(jsonObject, null, null, null, filterTraversible, referenceLocation);
 		} catch (Exception e) {
 			// e.printStackTrace();
 			// throw new IOException(e.getMessage());
@@ -195,7 +200,7 @@ public class SCGeocoder {
 		return addrs;
 	}
 
-	private List<Address> jsonObject2addressList(JSONObject jsonObject, boolean filterTraversible, double[] referenceLocation) throws IOException, JSONException {
+	private List<Address> jsonObject2addressList(JSONObject jsonObject, String region, String country, String administrativeArea, boolean filterTraversible, double[] referenceLocation) throws IOException, JSONException {
 		List<Address> addrs = new ArrayList<Address>();
 
 		if (!jsonObject.getString("status").equalsIgnoreCase("ok")) {
@@ -208,24 +213,28 @@ public class SCGeocoder {
 		}
 
 		Set<String> typeSet = new HashSet<String>(); 
+		if (results.length() == 1 && administrativeArea != null) {
+			fillTypesSet(typeSet, results.getJSONObject(0));
+			// the only result corresponding to the area itself, not relevant
+			if (ADMIN_AREA_TYPES.containsAll(typeSet)) {
+				return Collections.emptyList();
+			}
+		}
+
 		for (int i = 0; i < results.length(); i++) {
 			Address address = new Address(mLocale);
 			JSONObject a = results.getJSONObject(i);
 			address.setAddressLine(0, a.getString("formatted_address"));
 
-			JSONArray aComponents = a.getJSONArray("address_components");
+
 			if (filterTraversible) {
-				JSONArray typesArray = a.getJSONArray("types");
-				typeSet.clear();
-				if (typesArray != null) {
-					for (int k = 0; k < typesArray.length(); k++) {
-						typeSet.add(typesArray.getString(k));
-					}
-				}
+				fillTypesSet(typeSet, a);
 				if (nonTraversibleTypes.containsAll(typeSet)) {
 					continue;
 				}
 			}
+
+			JSONArray aComponents = a.getJSONArray("address_components");
 
 			for (int j = 0; j < aComponents.length(); j++) {
 				JSONObject comp = aComponents.getJSONObject(j);
@@ -257,6 +266,21 @@ public class SCGeocoder {
 		}
 		
 		return addrs;
+	}
+
+	/**
+	 * @param typeSet
+	 * @param typesArray
+	 * @throws JSONException
+	 */
+	protected void fillTypesSet(Set<String> typeSet, JSONObject a) throws JSONException {
+		JSONArray typesArray = a.getJSONArray("types");
+		typeSet.clear();
+		if (typesArray != null) {
+			for (int k = 0; k < typesArray.length(); k++) {
+				typeSet.add(typesArray.getString(k));
+			}
+		}
 	}
 
 	private boolean isValid(String s) {
