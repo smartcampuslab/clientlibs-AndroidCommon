@@ -15,6 +15,8 @@
  ******************************************************************************/
 package eu.trentorise.smartcampus.android.common;
 
+import com.google.android.gms.internal.ac;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -48,11 +50,15 @@ public class HandleExceptionHelper {
 		       });
 
 		// Create the AlertDialog
-		AlertDialog dialog = builder.create();
-		dialog.show();
+		if (!activity.isFinishing()) {
+			AlertDialog dialog = builder.create();
+			dialog.show();
+		}
 	}
 	
 	public static void connectivityFailure(final Activity activity){
-		Toast.makeText(activity, activity.getResources().getString(R.string.dialog_connectivity_message),Toast.LENGTH_LONG).show();
+		if (!activity.isFinishing()) {
+			Toast.makeText(activity, activity.getResources().getString(R.string.dialog_connectivity_message),Toast.LENGTH_LONG).show();
+		}
 	}
 }
