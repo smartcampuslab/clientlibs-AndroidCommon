@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.location.Address;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,12 +13,10 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockDialogFragment;
-
 import eu.trentorise.smartcampus.android.common.R;
 
 
-public class InfoDialog extends SherlockDialogFragment {
+public class InfoDialog extends DialogFragment {
 	private Address address;
 	private Activity activity;
 	public final static int RESULT_SELECTED = 10;
