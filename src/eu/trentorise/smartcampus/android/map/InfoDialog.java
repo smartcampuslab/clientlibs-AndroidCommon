@@ -21,6 +21,10 @@ public class InfoDialog extends DialogFragment {
 	private Activity activity;
 	public final static int RESULT_SELECTED = 10;
 	
+	public InfoDialog() {
+		super();
+	}
+
 	public InfoDialog(Activity activity, Address o) {
 		this.address = o;
 		this.activity = activity;
