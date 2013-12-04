@@ -25,7 +25,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.location.Address;
+
 /**
+ * Address object built out of OSM address data.
+ * 
  * @author raman
  *
  */
@@ -69,14 +73,14 @@ public class OSMAddress implements Serializable {
 	 */
 	public OSMAddress(Locale locale, JSONObject a) throws JSONException {
 		this.locale = locale;
-		this.id = a.getString("id");
-		this.name = a.getString("name");
-		this.osm_id = a.getString("osm_id");
-		this.osm_key = a.getString("osm_key");
-		this.osm_value = a.getString("osm_value");
-		this.housenumber = a.getString("housenumber");
-		this.postcode = a.getString("postcode");
-		this.street = a.getString("street");
+		this.id = a.optString("id", null);
+		this.name = a.optString("name", null);
+		this.osm_id = a.optString("osm_id" , null);
+		this.osm_key = a.optString("osm_key" , null);
+		this.osm_value = a.optString("osm_value" , null);
+		this.housenumber = a.optString("housenumber", null);
+		this.postcode = a.optString("postcode", null);
+		this.street = a.optString("street", null);
 		if (a.has("places")) {
 			this.places = a.getString("places").split(",");
 			for (int i = 0; i < this.places.length; i++) {
@@ -85,16 +89,17 @@ public class OSMAddress implements Serializable {
 		}
 		JSONArray names = a.names();
 		this.city = new HashMap<String, String>();
+		this.country = new HashMap<String, String>();
 		String name = null, key = null;
 		for (int i = 0; i < names.length(); i++) {
 			name = names.getString(i);
 			if (name.startsWith("city")) {
 				key = name.indexOf('_') > 0 ? name.substring(name.indexOf('_')+1) : "";
-				city.put(key, a.getString(name));
+				city.put(key, a.optString(name, null));
 			}
 			if (name.startsWith("country")) {
 				key = name.indexOf('_') > 0 ? name.substring(name.indexOf('_')+1) : "";
-				country.put(key, a.getString(name));
+				country.put(key, a.optString(name, null));
 			}
 		}
 		String[] loc = a.getString("coordinate").split(",");
@@ -179,18 +184,60 @@ public class OSMAddress implements Serializable {
 		this.country = country;
 	}
 	
-
+	/**
+	 * @return city name in the locale used
+	 */
 	public String city() {
 		String res = city.get(locale.getLanguage());
 		if (res == null) return city.get("");
 		return res;
 	}
 	
+	/**
+	 * @return country name in the locale used
+	 */
 	public String country() {
 		String res = country.get(locale.getLanguage());
 		if (res == null) return country.get("");
 		return res;
 	}
 	
+	/**
+	 * Convert the object to {@link Address} data structure
+	 * @return converted {@link Address} instance with
+	 * address line corresponding to the formatted address of the object
+	 * with lat/lon, country name, and locality filled. 
+	 */
+	public Address toAddress() {
+		Address a = new Address(locale);
+		a.setAddressLine(0, formattedAddress());
+		a.setCountryName(country());
+		a.setLatitude(location[0]);
+		a.setLongitude(location[1]);
+		a.setLocality(city());
+		return a;
+	}
+
+	/**
+	 * @return formatted representation of the address containing the street, number, 
+	 * city, postal code, and country
+	 */
+	public String formattedAddress() {
+		StringBuilder sb = new StringBuilder();
+		if (street != null) sb.append(street);
+		if (housenumber != null) {
+			if (sb.length() > 0) sb.append(", ");
+			sb.append(housenumber);
+		}
+		if (sb.length() > 0) sb.append(", ");
+		sb.append(city());
+		if (postcode != null) {
+			if (sb.length() > 0) sb.append(", ");
+			sb.append(postcode);
+		}
+		if (sb.length() > 0) sb.append(", ");
+		sb.append(country());
+		return sb.toString();
+	}
 	
 }

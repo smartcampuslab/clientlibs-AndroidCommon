@@ -20,30 +20,14 @@ import java.io.UnsupportedEncodingException;
 import java.net.ProtocolException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.protocol.HTTP;
-import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
-import android.location.Address;
-import android.location.Geocoder;
-import android.media.RemoteControlClient;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -54,23 +38,40 @@ import eu.trentorise.smartcampus.network.RemoteConnector;
 import eu.trentorise.smartcampus.network.RemoteException;
 import eu.trentorise.smartcampus.protocolcarrier.exceptions.ConnectionException;
 
+/**
+ * Geocoder based on the SC geocoder Web service.
+ * Performs the operations of direct/reverse geocoding.
+ * @author raman
+ *
+ */
 public class OSMGeocoder {
 
+	/**
+	 * 
+	 */
+	private static final double GEOCODE_DISTANCE = 0.5d;
 	private Context mContext;
 	private Locale mLocale = Locale.getDefault();
 
 	private String ENC = "UTF-8";
 	private static final String PATH = "/core.geocoder/collection1/select";
 	private String serverUrl;
-
-	private static double rad(double p) {
-		return p*Math.PI/180;
-	}
 	
+	/**
+	 * Constructor based on the specified server address
+	 * @param context
+	 * @param serverUrl
+	 */
 	public OSMGeocoder(Context context, String serverUrl) {
 		this(context, serverUrl, Locale.getDefault());
 	}
 
+	/**
+	 * Constructor based on the specified server address and locale
+	 * @param context
+	 * @param serverUrl
+	 * @param locale
+	 */
 	public OSMGeocoder(Context context, String serverUrl, Locale locale) {
 		mContext = context;
 		mLocale = locale;
@@ -83,15 +84,22 @@ public class OSMGeocoder {
 		return info != null && info.isConnected();
 	}
 
-	public List<Address> findAddressesAsync(final GeoPoint p) {
+	/**
+	 * Blocking reverse geocoding operation. It is safe to call it from UI thread.
+	 * @param p
+	 * @param token access token
+	 * @return list of {@link OSMAddress} instances around the 
+	 * specified point ordered by the increasing distance to the point
+	 */
+	public List<OSMAddress> findAddressesAsync(final GeoPoint p, final String token) {
 		try {
-			return new AsyncTask<Void, Void, List<Address>>() {
+			return new AsyncTask<Void, Void, List<OSMAddress>>() {
 				@Override
-				protected List<Address> doInBackground(Void... params) {
+				protected List<OSMAddress> doInBackground(Void... params) {
 					try {
-						List<Address> addresses = getFromLocationSC(p.getLatitudeE6() / 1E6, p.getLongitudeE6() / 1E6, true, null);
+						List<OSMAddress> addresses = getFromLocation(p.getLatitudeE6() / 1E6, p.getLongitudeE6() / 1E6, token);
 						return addresses;
-					} catch (IOException e) {
+					} catch (Exception e) {
 						e.printStackTrace();
 						return null;
 					}
@@ -102,46 +110,68 @@ public class OSMGeocoder {
 		}
 	}
 
+	/**
+	 * Perform geocoding operation, i.e., given the address line, search for
+	 * a list of places matching the specified address.
+	 * @param address
+	 * @param referenceLocation location to be used as a reference for the search,
+	 * i.e., order the results by the distance from the point
+	 * @param radius max distance to limit the search scope (may be null)
+	 * @param token access token
+	 * @return list of {@link OSMAddress} instancess matching the 
+	 * specified address that are within the circle with the center defined by
+	 * referenceLocation and the specified radius and ordered by the ascending
+	 * distance to the referenceLocation
+	 * @throws ConnectionException
+	 * @throws SecurityException
+	 * @throws RemoteException
+	 * @throws ProtocolException
+	 */
 	public List<OSMAddress> getFromLocationName(String address, double[] referenceLocation, Double radius, String token) throws ConnectionException, SecurityException, RemoteException, ProtocolException {
-		List<OSMAddress> addrs = null;
+		String components = null;
+		try {
+			components = parseAddress(address);
+		} catch (UnsupportedEncodingException e) {
+			throw new ProtocolException(e.getMessage());
+		}
 
 		if (!isConnected())
 			throw new ConnectionException("No connection");
 
-		StringBuilder sb = new StringBuilder();
-		sb.append(PATH);
-		sb.append("?");
+		return queryLocations(components, referenceLocation, radius, token);
+	}
+
+	private List<OSMAddress> queryLocations(String q, double[] referenceLocation, Double radius, String token) throws RemoteException, ConnectionException, ProtocolException {
+		
+		List<OSMAddress> addrs = null;
+		if (!isConnected())
+			throw new ConnectionException("No connection");
 
 		try {
-			String components = parseAddress(address);
-			sb.append("q=" + components);
-			sb.append("&wt=json&spatial=true&sfield=coordinate&sort=geodist()+asc");
-			sb.append("&ft="+ URLEncoder.encode("{!geofilt}",ENC));
+			StringBuilder sb = new StringBuilder();
+			sb.append(PATH);
+			sb.append("?q="+q);
+			sb.append("&wt=json&spatial=true&sfield=coordinate&sort=geodist()+asc&omitHeader=true");
+			sb.append("&fq={!geofilt}");
 			if (referenceLocation != null) {
-				sb.append("&pt="+URLEncoder.encode(referenceLocation[0]+","+referenceLocation[1],ENC));
+				sb.append("&pt="+referenceLocation[0]+","+referenceLocation[1]);
 			}
 			if (radius != null) {
-				sb.append("d="+radius);
+				sb.append("&d="+radius);
 			}
 			
 			JSONObject jsonObject = execute(serverUrl, sb.toString(), token);
 
 			addrs = jsonObject2addressList(jsonObject);
-		} catch (UnsupportedEncodingException e) {
-			throw new ProtocolException(e.getMessage());
+			return addrs;
 		} catch (IOException e) {
 			throw new ProtocolException(e.getMessage());
 		} catch (JSONException e) {
 			throw new ProtocolException(e.getMessage());
 		}
 
-		return addrs;
 	}
 
-	/**
-	 * @return
-	 * @throws UnsupportedEncodingException 
-	 */
 	private String parseAddress(String address) throws UnsupportedEncodingException {
 		String q = "";
 		String[] tokens = address.split(",");
@@ -161,31 +191,20 @@ public class OSMGeocoder {
 		return URLEncoder.encode(q, ENC);
 	}
 
-	public List<Address> getFromLocation(double lat, double lng, double[] referenceLocation) throws IOException {
-		List<Address> addrs = new ArrayList<Address>();
-
+	/**
+	 * Reverse geocoding operation. Cannot be called from UI thread.
+	 * @param lat
+	 * @param lng
+	 * @param token access token
+	 * @return list of {@link OSMAddress} instances around the 
+	 * specified point ordered by the increasing distance to the point
+	 */
+	public List<OSMAddress> getFromLocation(double lat, double lng, String token) throws ProtocolException, RemoteException, ConnectionException {
+		String q = "*:*";
 		if (!isConnected())
-			throw new IOException("No connection");
+			throw new ConnectionException("No connection");
 
-		try {
-			StringBuilder sb = new StringBuilder();
-			sb.append(url + output);
-			sb.append("?");
-			sb.append("latlng=" + lat + "," + lng);
-			sb.append("&");
-			sb.append("sensor=true");
-
-			JSONObject jsonObject = execute(sb.toString());
-
-			addrs = jsonObject2addressList(jsonObject, null, null, null, filterTraversible, referenceLocation);
-		} catch (Exception e) {
-			// e.printStackTrace();
-			// throw new IOException(e.getMessage());
-			mGeocoder = new Geocoder(mContext, mLocale);
-			return mGeocoder.getFromLocation(lat, lng, 10);
-		}
-
-		return addrs;
+		return queryLocations(q, new double[]{lat,lng}, GEOCODE_DISTANCE, token);
 	}
 
 	private List<OSMAddress> jsonObject2addressList(JSONObject in) throws IOException, JSONException {
@@ -201,26 +220,10 @@ public class OSMGeocoder {
 		for (int i = 0; i < results.length(); i++) {
 			JSONObject a = results.getJSONObject(i);
 			OSMAddress address = new OSMAddress(mLocale, a);
-			JSONArray aComponents = a.getJSONArray("address_components");
 			addrs.add(address);
 		}
 
 		return addrs;
-	}
-
-	/**
-	 * @param typeSet
-	 * @param typesArray
-	 * @throws JSONException
-	 */
-	protected void fillTypesSet(Set<String> typeSet, JSONObject a) throws JSONException {
-		JSONArray typesArray = a.getJSONArray("types");
-		typeSet.clear();
-		if (typesArray != null) {
-			for (int k = 0; k < typesArray.length(); k++) {
-				typeSet.add(typesArray.getString(k));
-			}
-		}
 	}
 
 	private JSONObject execute(String server, String query, String token) throws SecurityException, RemoteException {
@@ -234,24 +237,4 @@ public class OSMGeocoder {
 		return jsonObject;
 
 	}
-	
-	private class DistanceComparator implements Comparator<Address> {
-		private double[] referenceLocation = new double[]{45.891143,11.04018};
-		
-		public DistanceComparator(double[] referenceLocation) {
-			super();
-			this.referenceLocation = referenceLocation;
-		}
-		@Override
-		public int compare(Address lhs, Address rhs) {
-			return Double.compare(distance(new double[]{lhs.getLatitude(),lhs.getLongitude()},referenceLocation), distance(new double[]{rhs.getLatitude(),rhs.getLongitude()},referenceLocation));
-		}
-		private double distance(double[] from, double[] to) {
-			double x = (rad(to[1])-rad(from[1]))*Math.cos(rad(to[0])-rad(from[0]));
-			double y = rad(to[0])-rad(from[0]);
-			return 6731*Math.sqrt(x*x+y*y);
-		}
-		
-	};
-
 }
