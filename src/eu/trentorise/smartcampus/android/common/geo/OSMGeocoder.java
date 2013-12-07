@@ -20,8 +20,10 @@ import java.io.UnsupportedEncodingException;
 import java.net.ProtocolException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -150,17 +152,23 @@ public class OSMGeocoder {
 		try {
 			StringBuilder sb = new StringBuilder();
 			sb.append(PATH);
-			sb.append("?q="+q);
-			sb.append("&wt=json&spatial=true&sfield=coordinate&sort=geodist()+asc&omitHeader=true");
-			sb.append("&fq={!geofilt}");
+			Map<String,Object> params = new HashMap<String, Object>();
+			params.put("wt", "json");
+			params.put("spatial", "true");
+			params.put("sfield", "coordinate");
+			params.put("sort", "geodist() asc");
+			params.put("omitHeader", "true");
+			params.put("fq", "{!geofilt}");
+			params.put("q", q);
+			
 			if (referenceLocation != null) {
-				sb.append("&pt="+referenceLocation[0]+","+referenceLocation[1]);
+				params.put("pt", referenceLocation[0]+","+referenceLocation[1]);
 			}
 			if (radius != null) {
-				sb.append("&d="+radius);
+				params.put("d", radius);
 			}
 			
-			JSONObject jsonObject = execute(serverUrl, sb.toString(), token);
+			JSONObject jsonObject = execute(serverUrl, sb.toString(), params, token);
 
 			addrs = jsonObject2addressList(jsonObject);
 			return addrs;
@@ -176,9 +184,14 @@ public class OSMGeocoder {
 		String q = "";
 		String[] tokens = address.split(",");
 		String[] subtokens = tokens[0].split(" ");
+		String nq = "name:(", sq = "street:(";
 		for (String subtoken : subtokens) {
-			q += "+name:"+subtoken.trim()+" ";
+			nq += " +"+ subtoken.trim();
+			sq += " +"+ subtoken.trim();
 		}
+		nq += ")";
+		sq += ")";
+		q += "+("+nq +" OR "+ sq +") ";
 		if (tokens.length >= 3 && tokens[1] != null && tokens[1].trim().length() > 0) {
 			q += "+housenumber:"+tokens[1].trim()+" ";
 		} 
@@ -188,7 +201,7 @@ public class OSMGeocoder {
 		if (tokens.length >= 3 && tokens[2] != null && tokens[2].trim().length() > 0) {
 			q += "+city:"+tokens[2].trim()+" ";
 		} 
-		return URLEncoder.encode(q, ENC);
+		return q;//URLEncoder.encode(q, ENC);
 	}
 
 	/**
@@ -226,8 +239,8 @@ public class OSMGeocoder {
 		return addrs;
 	}
 
-	private JSONObject execute(String server, String query, String token) throws SecurityException, RemoteException {
-		String result = RemoteConnector.getJSON(server, query, token);
+	private JSONObject execute(String server, String query, Map<String,Object> params, String token) throws SecurityException, RemoteException {
+		String result = RemoteConnector.getJSON(server, query, token, params);
 		JSONObject jsonObject = new JSONObject();
 		try {
 			jsonObject = new JSONObject(result);

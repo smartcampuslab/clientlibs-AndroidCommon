@@ -237,7 +237,9 @@ public class OSMAddress implements Serializable {
 		}
 		if (sb.length() > 0) sb.append(", ");
 		sb.append(country());
-		return sb.toString();
+		String res = sb.toString();
+		if (name != null && name.length() > 0 && !res.contains(name)) return name +", "+res;
+		return res;
 	}
 	
 }
