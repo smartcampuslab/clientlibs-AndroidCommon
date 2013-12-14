@@ -16,9 +16,7 @@
 package eu.trentorise.smartcampus.android.common.geo;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.ProtocolException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -56,7 +54,8 @@ public class OSMGeocoder {
 	private Locale mLocale = Locale.getDefault();
 
 	private String ENC = "UTF-8";
-	private static final String PATH = "/core.geocoder/collection1/select";
+	private static final String LOC_PATH = "/core.geocoder/spring/location";
+	private static final String ADDR_PATH = "/core.geocoder/spring/address";
 	private String serverUrl;
 	
 	/**
@@ -130,17 +129,10 @@ public class OSMGeocoder {
 	 * @throws ProtocolException
 	 */
 	public List<OSMAddress> getFromLocationName(String address, double[] referenceLocation, Double radius, String token) throws ConnectionException, SecurityException, RemoteException, ProtocolException {
-		String components = null;
-		try {
-			components = parseAddress(address);
-		} catch (UnsupportedEncodingException e) {
-			throw new ProtocolException(e.getMessage());
-		}
-
 		if (!isConnected())
 			throw new ConnectionException("No connection");
 
-		return queryLocations(components, referenceLocation, radius, token);
+		return queryLocations(address, referenceLocation, radius, token);
 	}
 
 	private List<OSMAddress> queryLocations(String q, double[] referenceLocation, Double radius, String token) throws RemoteException, ConnectionException, ProtocolException {
@@ -151,21 +143,16 @@ public class OSMGeocoder {
 
 		try {
 			StringBuilder sb = new StringBuilder();
-			sb.append(PATH);
-			Map<String,Object> params = new HashMap<String, Object>();
-			params.put("wt", "json");
-			params.put("spatial", "true");
-			params.put("sfield", "coordinate");
-			params.put("sort", "geodist() asc");
-			params.put("omitHeader", "true");
-			params.put("fq", "{!geofilt}");
-			params.put("q", q);
-			
-			if (referenceLocation != null) {
-				params.put("pt", referenceLocation[0]+","+referenceLocation[1]);
+			if (q != null) {
+				sb.append(ADDR_PATH);
+			} else {
+				sb.append(LOC_PATH);
 			}
-			if (radius != null) {
-				params.put("d", radius);
+			Map<String,Object> params = new HashMap<String, Object>();
+			params.put("latlng", referenceLocation[0]+","+referenceLocation[1]);
+			params.put("distance", radius);
+			if (q != null) {
+				params.put("address", q);
 			}
 			
 			JSONObject jsonObject = execute(serverUrl, sb.toString(), params, token);
@@ -180,30 +167,6 @@ public class OSMGeocoder {
 
 	}
 
-	private String parseAddress(String address) throws UnsupportedEncodingException {
-		String q = "";
-		String[] tokens = address.split(",");
-		String[] subtokens = tokens[0].split(" ");
-		String nq = "name:(", sq = "street:(";
-		for (String subtoken : subtokens) {
-			nq += " +"+ subtoken.trim();
-			sq += " +"+ subtoken.trim();
-		}
-		nq += ")";
-		sq += ")";
-		q += "+("+nq +" OR "+ sq +") ";
-		if (tokens.length >= 3 && tokens[1] != null && tokens[1].trim().length() > 0) {
-			q += "+housenumber:"+tokens[1].trim()+" ";
-		} 
-		if (tokens.length == 2 && tokens[1] != null && tokens[1].trim().length() > 0) {
-			q += "+city:"+tokens[1].trim()+" ";
-		}
-		if (tokens.length >= 3 && tokens[2] != null && tokens[2].trim().length() > 0) {
-			q += "+city:"+tokens[2].trim()+" ";
-		} 
-		return q;//URLEncoder.encode(q, ENC);
-	}
-
 	/**
 	 * Reverse geocoding operation. Cannot be called from UI thread.
 	 * @param lat
@@ -213,11 +176,10 @@ public class OSMGeocoder {
 	 * specified point ordered by the increasing distance to the point
 	 */
 	public List<OSMAddress> getFromLocation(double lat, double lng, String token) throws ProtocolException, RemoteException, ConnectionException {
-		String q = "*:*";
 		if (!isConnected())
 			throw new ConnectionException("No connection");
 
-		return queryLocations(q, new double[]{lat,lng}, GEOCODE_DISTANCE, token);
+		return queryLocations(null, new double[]{lat,lng}, GEOCODE_DISTANCE, token);
 	}
 
 	private List<OSMAddress> jsonObject2addressList(JSONObject in) throws IOException, JSONException {

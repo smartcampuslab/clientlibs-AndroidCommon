@@ -16,7 +16,6 @@
 package eu.trentorise.smartcampus.android.common;
 
 import java.io.IOException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -44,8 +43,12 @@ import android.location.Geocoder;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.google.android.maps.GeoPoint;
+
+import eu.trentorise.smartcampus.android.common.geo.OSMAddress;
+import eu.trentorise.smartcampus.android.common.geo.OSMGeocoder;
 
 public class SCGeocoder {
 
@@ -54,7 +57,7 @@ public class SCGeocoder {
 	private Geocoder mGeocoder;
 
 	private String ENC = "UTF-8";
-	private String url = "https://maps.googleapis.com/maps/api/geocode/";
+	private String url = "https://vas.smartcampuslab.it";
 	private String output = "json";
 
 	private static final Set<String> ADMIN_AREA_TYPES = new HashSet<String>();
@@ -124,52 +127,21 @@ public class SCGeocoder {
 		}
 	}
 
-	public List<Address> getFromLocationNameSC(String address, String region, String country, String administrativeArea,
-			boolean filterTraversible, double[] referenceLocation) throws IOException {
+	public List<Address> getFromLocationNameSC(String address, String region, String country, String administrativeArea, boolean filterTraversible, double[] referenceLocation) throws IOException {
 		List<Address> addrs = new ArrayList<Address>();
 
 		if (!isConnected())
 			throw new IOException("No connection");
 
 		try {
-			StringBuilder sb = new StringBuilder();
-			sb.append(url + output);
-			sb.append("?");
-
-			sb.append("address=" + URLEncoder.encode(address, ENC));
-
-			if (isValid(region)) {
-				sb.append("&");
-				sb.append("region=" + region);
+			List<OSMAddress> list = new OSMGeocoder(mContext, url).getFromLocationName(address, referenceLocation, 25d, null);
+			for (OSMAddress a : list) {
+				addrs.add(a.toAddress());
 			}
-
-			if (isValid(country) || isValid(administrativeArea)) {
-				sb.append("&");
-				sb.append("components=");
-				if (isValid(country)) {
-					sb.append("country:" + country);
-				}
-				if (isValid(administrativeArea)) {
-					if (isValid(country)) {
-						sb.append(URLEncoder.encode("|", ENC));
-					}
-					sb.append("administrative_area:" + administrativeArea);
-				}
-			}
-
-			sb.append("&");
-			sb.append("sensor=true");
-
-			JSONObject jsonObject = execute(sb.toString());
-
-			addrs = jsonObject2addressList(jsonObject,region, country, administrativeArea, filterTraversible, referenceLocation);
 		} catch (Exception e) {
-			// e.printStackTrace();
-			// throw new IOException(e.getMessage());
-			mGeocoder = new Geocoder(mContext, mLocale);
-			return mGeocoder.getFromLocationName(address, 3);
+			Log.e(getClass().getName(), ""+e.getMessage());
+			return Collections.emptyList();
 		}
-
 		return addrs;
 	}
 
@@ -180,21 +152,13 @@ public class SCGeocoder {
 			throw new IOException("No connection");
 
 		try {
-			StringBuilder sb = new StringBuilder();
-			sb.append(url + output);
-			sb.append("?");
-			sb.append("latlng=" + lat + "," + lng);
-			sb.append("&");
-			sb.append("sensor=true");
-
-			JSONObject jsonObject = execute(sb.toString());
-
-			addrs = jsonObject2addressList(jsonObject, null, null, null, filterTraversible, referenceLocation);
+			List<OSMAddress> list = new OSMGeocoder(mContext, url).getFromLocation(lat, lng, null);
+			for (OSMAddress a : list) {
+				addrs.add(a.toAddress());
+			}
 		} catch (Exception e) {
-			// e.printStackTrace();
-			// throw new IOException(e.getMessage());
-			mGeocoder = new Geocoder(mContext, mLocale);
-			return mGeocoder.getFromLocation(lat, lng, 10);
+			Log.e(getClass().getName(), ""+e.getMessage());
+			return Collections.emptyList();
 		}
 
 		return addrs;
