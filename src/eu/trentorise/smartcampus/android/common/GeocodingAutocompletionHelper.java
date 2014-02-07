@@ -16,7 +16,9 @@
 package eu.trentorise.smartcampus.android.common;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import android.content.Context;
 import android.location.Address;
@@ -113,12 +115,16 @@ public class GeocodingAutocompletionHelper implements TextWatcher, OnItemClickLi
 	private void notifyResult(List<Address> suggestions) {
 		autoCompleteSuggestionAddresses = suggestions;
 		autoCompleteAdapter.clear();
+		Set<String> unique = new HashSet<String>();
 		for (Address a : suggestions) {
 			String s = "";
 			for (int i = 0; i <= a.getMaxAddressLineIndex(); i++) {
 				s += a.getAddressLine(i) + " ";
 			}
-			autoCompleteAdapter.add(s.trim());
+			if (!unique.contains(s)) {
+				autoCompleteAdapter.add(s);
+				unique.add(s);
+			}
 		}
 		autoCompleteAdapter.notifyDataSetChanged();
 	}
