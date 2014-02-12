@@ -15,6 +15,7 @@
  ******************************************************************************/
 package eu.trentorise.smartcampus.android.common.geo;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -104,13 +105,15 @@ public class OSMGeocodingAutocompletionHelper implements TextWatcher, OnItemClic
 	}
 
 	private void notifyResult(List<OSMAddress> suggestions) {
-		autoCompleteSuggestionAddresses = suggestions;
+		if (autoCompleteSuggestionAddresses == null) autoCompleteSuggestionAddresses = new ArrayList<OSMAddress>();
+		else autoCompleteSuggestionAddresses.clear();
 		autoCompleteAdapter.clear();
 		Set<String> unique = new HashSet<String>();
 		for (OSMAddress a : suggestions) {
 			String s = a.formattedAddress().trim();
 			if (!unique.contains(s)) {
 				autoCompleteAdapter.add(s);
+				autoCompleteSuggestionAddresses.add(a);
 				unique.add(s);
 			}
 		}

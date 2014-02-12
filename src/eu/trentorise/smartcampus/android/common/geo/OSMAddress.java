@@ -229,8 +229,10 @@ public class OSMAddress implements Serializable {
 			if (sb.length() > 0) sb.append(", ");
 			sb.append(housenumber);
 		}
-		if (sb.length() > 0) sb.append(", ");
-		sb.append(city());
+		if (city != null && !city.isEmpty()) {
+			if (sb.length() > 0) sb.append(", ");
+			sb.append(city());
+		}
 		if (postcode != null) {
 			if (sb.length() > 0) sb.append(", ");
 			sb.append(postcode);
