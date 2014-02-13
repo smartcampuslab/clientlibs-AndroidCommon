@@ -15,8 +15,6 @@
  ******************************************************************************/
 package eu.trentorise.smartcampus.android.common;
 
-import com.google.android.gms.internal.ac;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;

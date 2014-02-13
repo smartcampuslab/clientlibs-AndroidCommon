@@ -18,18 +18,15 @@ package eu.trentorise.smartcampus.android.common.listing;
 import java.util.List;
 
 import android.app.Activity;
-import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-
-import com.actionbarsherlock.app.SherlockFragment;
-
 import eu.trentorise.smartcampus.android.common.SCAsyncTask;
 import eu.trentorise.smartcampus.android.common.SCAsyncTask.SCAsyncTaskProcessor;
 
-public abstract class AbstractLstingFragment<T> extends SherlockFragment implements OnScrollListener {
+public abstract class AbstractLstingFragment<T> extends Fragment implements OnScrollListener {
 
 	protected int lastSize = 0;
 	protected int position = 0;
