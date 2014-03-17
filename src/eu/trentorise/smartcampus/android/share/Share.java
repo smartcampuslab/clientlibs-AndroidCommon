@@ -8,6 +8,8 @@ import android.content.Intent;
 import android.net.Uri;
 import eu.trentorise.smartcampus.android.common.R;
 
+//Author: Digilio Mattia 
+
 public class Share {
 	public static final String TYPE_TEXT = "text/plain";
 	

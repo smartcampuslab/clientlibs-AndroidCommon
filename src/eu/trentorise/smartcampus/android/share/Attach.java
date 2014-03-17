@@ -1,6 +1,6 @@
 package eu.trentorise.smartcampus.android.share;
 
-//Autore: Digilio Mattia 
+//Author: Digilio Mattia 
 
 public class Attach {
 
