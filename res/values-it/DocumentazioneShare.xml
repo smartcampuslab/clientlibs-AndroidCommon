@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2012-2013 Trento RISE
+  
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+         http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either   express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<resources>
+<!-- 
+    Documentazione libreria SHARE 
+
+La funzione Share() all’interno della libreria ha lo scopo di condividere  attraverso applicazioni di default e applicazioni installate sul sistema, testi, immagini e video.  
+
+Ideata in maniera dinamica permette, in base all’utilizzo,di condividere testo, testo+immagini, immagini, testo+video o video. Possono essere condivise/i più immagin/ivideo alla volta.(Fino a 10 media contemporaneamente)
+La funzione si presenta in questo modo:
+
+share(Activity a, String subj, String text, String add, String date, List<Attach> att)
+
+Il primo parametro è l’activity nella quale viene lanciata la funzione
+Il secondo parametro è una stringa, che sarà oggetto nelle mail.
+Il terzo parametro è una stringa, che sarà il testo da condividere.
+Il quarto parametro è una stringa, che potrebbe essere un indirizzo.
+Il quinto parametro è una stringa, che potrebbe essere una data.
+Il sesto parametro è una lista di Attach, una struttura costruita appositamente per gestire in maniera ordinata i media.
+
+La struttura Attach è composta da due Stringhe: una determina il percorso del media sul dispositivo, l’altra il formato del media.
+La funzione “share” utilizza una lista di attach, in maniera tale da poter condividere più media contemporaneamente. Se la lista contiene un solo elemento attach, sarà considerato come media unico.
+
+La funzione gestisce i seguenti casi:
+
+share(Activity a, List<Attach> att ) , per condividere solo media.
+
+share(Activity a, String subj), per condividere solo subj.
+
+share(Activity a, String subj,String text ), per condividere subject e text.
+
+share(Activity a, String subj,String text, String add), per condividere subj, text e add.
+
+share(Activity a, String subj,String text, String add, String date) per condividere subj, text, add e date.
+
+share(Activity a, String subj,String text, String add, String date, List<Attach> att), per condividere subj, text, add, date e media.
+
+share(Activity a, String subj,String text, List<Attach> att), per condividere subj, text e media.
+
+share(Activity a, String text, List<Attach> att), per condividere text e media.
+
+Per semplificare, da parte dell’utente,  l’utilizzo della funzione share, è stata creata un’ ulteriore funzione dal nome “configura”, che utilizza come  parametri una lista di attach, e due liste di stringhe. Serve per aggiungere elementi attach, quindi media, alla  lista di attach passata. Le due liste di stringhe contengono ripettivamente path e tipo del media, associando una stringa della prima lista con la prima stringa della seconda lista si crea un elemento attach, che contiene per l’appunto le informazioni dettate dalle due stringhe sul tipo e la posizione del media. Infatti le due liste di stringhe dovranno avere dimensione uguale, per permettere ad ogni oggetto attach di avere un “type” ed un “filepath”. In caso contrario scatta l’errore. La funzione “configura” semplificando è un ciclo, che si interrompe al quando tutte le stringhe delle due liste sono state processate, inserite all’interno di un modello attach e aggiunte alla lista di attach.
+
+configura(List<Attach> att, List<String> type, List<String> filePath) 
+
+La libreria contiene, inolte, la funzione denominata “sametype” che acquisisce come parametro una lista di oggetti attach e controlla che il tipo di media all’interno di ogni singolo oggetto sia uguale al tipo di media degli altri oggetti della lista. Ritorna un valore booleano. True nel caso siano tutti dello stesso tipo, false altrimenti, lanciando un eccezione.
+
+sametype(List<Attach> att)
+
+
+    
+     -->
+</resources>
