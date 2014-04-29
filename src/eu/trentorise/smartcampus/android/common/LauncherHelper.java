@@ -23,7 +23,6 @@ public class LauncherHelper {
 			if(wantDialog){
 				showDownloadDialog(act, pn);
 			}
-			act.finish();
 		}
 		// Retrieves null or the info referred to a particular application
 		return false;
@@ -39,6 +38,7 @@ public class LauncherHelper {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					dialog.dismiss();
+					act.finish();
 				}
 			})
 			.setPositiveButton(act.getString(android.R.string.ok), new DialogInterface.OnClickListener() {
@@ -50,6 +50,7 @@ public class LauncherHelper {
 					} catch (android.content.ActivityNotFoundException anfe) {
 					    act.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/apps/details?id=" + pn)));
 					}
+					act.finish();
 				}
 			});
 		build.create().show();
