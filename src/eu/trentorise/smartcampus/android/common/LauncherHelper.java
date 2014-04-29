@@ -20,32 +20,39 @@ public class LauncherHelper {
 			info = pm.getApplicationInfo(pn, 0);
 			return true;
 		} catch (NameNotFoundException e) {
-			AlertDialog.Builder build = new AlertDialog.Builder(act);
-			build.setTitle(act.getString(R.string.launcher_needed_title))
-				.setMessage(act.getString(R.string.launcher_needed_msg))
-				.setNeutralButton(act.getString(android.R.string.cancel), new DialogInterface.OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.dismiss();
-						act.finish();
-					}
-				})
-				.setPositiveButton(act.getString(android.R.string.ok), new DialogInterface.OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						try {
-						    act.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + pn)));
-						} catch (android.content.ActivityNotFoundException anfe) {
-						    act.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/apps/details?id=" + pn)));
-						}
-					}
-				});
-			build.create().show();
+			if(wantDialog){
+				showDownloadDialog(act, pn);
+			}
+			act.finish();
 		}
 		// Retrieves null or the info referred to a particular application
 		return false;
+	}
+
+
+	private static void showDownloadDialog(final Activity act, final String pn) {
+		AlertDialog.Builder build = new AlertDialog.Builder(act);
+		build.setTitle(act.getString(R.string.launcher_needed_title))
+			.setMessage(act.getString(R.string.launcher_needed_msg))
+			.setNeutralButton(act.getString(android.R.string.cancel), new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.dismiss();
+				}
+			})
+			.setPositiveButton(act.getString(android.R.string.ok), new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					try {
+					    act.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + pn)));
+					} catch (android.content.ActivityNotFoundException anfe) {
+					    act.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/apps/details?id=" + pn)));
+					}
+				}
+			});
+		build.create().show();
 	}
 
 }
