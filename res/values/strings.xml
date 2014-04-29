@@ -46,5 +46,8 @@
     <string name="problem_closing">Problem closing progress dialog: .</string> 
     <string name="selected_address">Selected location:</string>
     
+    <string name="launcher_needed_title">Download now?</string>
+   	<string name="launcher_needed_msg">The SmartCampus\' Launcher is needed in order to use this app.</string>
+    
     
 </resources>
