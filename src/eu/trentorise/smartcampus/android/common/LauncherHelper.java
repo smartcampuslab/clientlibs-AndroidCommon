@@ -2,7 +2,6 @@ package eu.trentorise.smartcampus.android.common;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
@@ -13,7 +12,7 @@ import android.net.Uri;
 public class LauncherHelper {
 	
 	public static boolean isLauncherInstalled(final Activity act, boolean wantDialog){
-		final String pn = "eu.trentorise.smartcampus.launcher";
+		final String pn = "it.smartcampuslab.launcher";
 		ApplicationInfo info = null;
 		PackageManager pm = act.getPackageManager();
 		try {
