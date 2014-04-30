@@ -29,4 +29,7 @@
     <string name="loading"> Caricamento in corso &#8230;</string> 
     <string name="selected_address">Indirizzo selezionato:</string>
     
+    <string name="launcher_needed_title">Vuoi scaricare adesso?</string>
+   	<string name="launcher_needed_msg">Per utilizzare questa app devi scaricare il launcher di Smart Campus</string>
+    
 </resources>
