@@ -29,7 +29,7 @@ public class GlobalConfig {
 	
 	private static final String P_APP_BASE_URL= "APP_BASE_URL";
 	// Shared package path
-	private static final String SHARED_PACKAGE = "eu.trentorise.smartcampus.launcher";
+	private static final String SHARED_PACKAGE = "it.smartcampuslab.launcher";
 	public static final String APP_METADATA_SHARED_PACKAGE = "SHARED_PACKAGE";
 
 	// Name for preferences
