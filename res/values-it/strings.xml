@@ -20,7 +20,7 @@
     <string name="tag_add">Aggiungi</string>
     <string name="create_tags">Tags</string>
 
-    <string name="app_not_installed">L\'applicazione richiesta non è stata trovata. Puoi installarla dal launcher di SmartCampus.</string>
+    <string name="app_not_installed">L\'applicazione richiesta non è stata trovata. Puoi installarla da SmartCampus Toolbox.</string>
    
     <string name="dialog_connectivity_message">Connessione non disponibile. Verificare le impostazioni.</string>
     <string name="dialog_connectivity_title">Problema di connessione</string>
@@ -30,6 +30,6 @@
     <string name="selected_address">Luogo più vicino:</string>
     
     <string name="launcher_needed_title">Vuoi scaricare adesso?</string>
-   	<string name="launcher_needed_msg">Per utilizzare questa app devi scaricare il launcher di Smart Campus</string>
+   	<string name="launcher_needed_msg">Per utilizzare questa app devi scaricare Smart Campus Toolbox</string>
     
 </resources>

@@ -36,7 +36,7 @@
     <string name="view_intent_arg_entity_type">entityType</string>
     <string name="view_intent_arg_object_id">objectId</string>
     
-    <string name="app_not_installed">No suitable application found. Install the application from the SmartCampus launcher.</string>
+    <string name="app_not_installed">No suitable application found. Install the application from the SmartCampus Toolbox.</string>
    
     <string name="dialog_connectivity_message">No suitable connection found. Open settings.</string>
     <string name="dialog_connectivity_title">Connectivity problem</string>
@@ -47,7 +47,7 @@
     <string name="selected_address">Nearest location:</string>
     
     <string name="launcher_needed_title">Download now?</string>
-   	<string name="launcher_needed_msg">The SmartCampus\' Launcher is needed in order to use this app.</string>
+   	<string name="launcher_needed_msg">The SmartCampus Toolbox is needed in order to use this app.</string>
     
     
 </resources>
