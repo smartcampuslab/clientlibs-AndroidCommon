@@ -28,38 +28,33 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
-
-import com.google.android.maps.GeoPoint;
-
 import eu.trentorise.smartcampus.network.RemoteConnector;
 import eu.trentorise.smartcampus.network.RemoteException;
 import eu.trentorise.smartcampus.protocolcarrier.exceptions.ConnectionException;
 
 /**
- * Geocoder based on the SC geocoder Web service.
- * Performs the operations of direct/reverse geocoding.
+ * Geocoder based on the SC geocoder Web service. Performs the operations of
+ * direct/reverse geocoding.
+ * 
  * @author raman
  *
  */
 public class OSMGeocoder {
-
-	/**
-	 * 
-	 */
 	private static final double GEOCODE_DISTANCE = 0.5d;
 	private Context mContext;
 	private Locale mLocale = Locale.getDefault();
 
-	private String ENC = "UTF-8";
 	private static final String LOC_PATH = "/core.geocoder/spring/location";
 	private static final String ADDR_PATH = "/core.geocoder/spring/address";
 	private String serverUrl;
-	
+
 	/**
 	 * Constructor based on the specified server address
+	 * 
 	 * @param context
 	 * @param serverUrl
 	 */
@@ -69,6 +64,7 @@ public class OSMGeocoder {
 
 	/**
 	 * Constructor based on the specified server address and locale
+	 * 
 	 * @param context
 	 * @param serverUrl
 	 * @param locale
@@ -86,19 +82,22 @@ public class OSMGeocoder {
 	}
 
 	/**
-	 * Blocking reverse geocoding operation. It is safe to call it from UI thread.
-	 * @param p
-	 * @param token access token
-	 * @return list of {@link OSMAddress} instances around the 
-	 * specified point ordered by the increasing distance to the point
+	 * Blocking reverse geocoding operation. It is safe to call it from UI
+	 * thread.
+	 * 
+	 * @param l
+	 * @param token
+	 *            access token
+	 * @return list of {@link OSMAddress} instances around the specified point
+	 *         ordered by the increasing distance to the point
 	 */
-	public List<OSMAddress> findAddressesAsync(final GeoPoint p, final String token) {
+	public List<OSMAddress> findAddressesAsync(final Location l, final String token) {
 		try {
 			return new AsyncTask<Void, Void, List<OSMAddress>>() {
 				@Override
 				protected List<OSMAddress> doInBackground(Void... params) {
 					try {
-						List<OSMAddress> addresses = getFromLocation(p.getLatitudeE6() / 1E6, p.getLongitudeE6() / 1E6, token);
+						List<OSMAddress> addresses = getFromLocation(l.getLatitude(), l.getLongitude(), token);
 						return addresses;
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -112,31 +111,37 @@ public class OSMGeocoder {
 	}
 
 	/**
-	 * Perform geocoding operation, i.e., given the address line, search for
-	 * a list of places matching the specified address.
+	 * Perform geocoding operation, i.e., given the address line, search for a
+	 * list of places matching the specified address.
+	 * 
 	 * @param address
-	 * @param referenceLocation location to be used as a reference for the search,
-	 * i.e., order the results by the distance from the point
-	 * @param radius max distance to limit the search scope (may be null)
-	 * @param token access token
-	 * @return list of {@link OSMAddress} instancess matching the 
-	 * specified address that are within the circle with the center defined by
-	 * referenceLocation and the specified radius and ordered by the ascending
-	 * distance to the referenceLocation
+	 * @param referenceLocation
+	 *            location to be used as a reference for the search, i.e., order
+	 *            the results by the distance from the point
+	 * @param radius
+	 *            max distance to limit the search scope (may be null)
+	 * @param token
+	 *            access token
+	 * @return list of {@link OSMAddress} instancess matching the specified
+	 *         address that are within the circle with the center defined by
+	 *         referenceLocation and the specified radius and ordered by the
+	 *         ascending distance to the referenceLocation
 	 * @throws ConnectionException
 	 * @throws SecurityException
 	 * @throws RemoteException
 	 * @throws ProtocolException
 	 */
-	public List<OSMAddress> getFromLocationName(String address, double[] referenceLocation, Double radius, String token) throws ConnectionException, SecurityException, RemoteException, ProtocolException {
+	public List<OSMAddress> getFromLocationName(String address, double[] referenceLocation, Double radius, String token)
+			throws ConnectionException, SecurityException, RemoteException, ProtocolException {
 		if (!isConnected())
 			throw new ConnectionException("No connection");
 
 		return queryLocations(address, referenceLocation, radius, token);
 	}
 
-	private List<OSMAddress> queryLocations(String q, double[] referenceLocation, Double radius, String token) throws RemoteException, ConnectionException, ProtocolException {
-		
+	private List<OSMAddress> queryLocations(String q, double[] referenceLocation, Double radius, String token)
+			throws RemoteException, ConnectionException, ProtocolException {
+
 		List<OSMAddress> addrs = null;
 		if (!isConnected())
 			throw new ConnectionException("No connection");
@@ -148,13 +153,13 @@ public class OSMGeocoder {
 			} else {
 				sb.append(LOC_PATH);
 			}
-			Map<String,Object> params = new HashMap<String, Object>();
-			params.put("latlng", referenceLocation[0]+","+referenceLocation[1]);
+			Map<String, Object> params = new HashMap<String, Object>();
+			params.put("latlng", referenceLocation[0] + "," + referenceLocation[1]);
 			params.put("distance", radius);
 			if (q != null) {
 				params.put("address", q);
 			}
-			
+
 			JSONObject jsonObject = execute(serverUrl, sb.toString(), params, token);
 
 			addrs = jsonObject2addressList(jsonObject);
@@ -169,24 +174,27 @@ public class OSMGeocoder {
 
 	/**
 	 * Reverse geocoding operation. Cannot be called from UI thread.
+	 * 
 	 * @param lat
 	 * @param lng
-	 * @param token access token
-	 * @return list of {@link OSMAddress} instances around the 
-	 * specified point ordered by the increasing distance to the point
+	 * @param token
+	 *            access token
+	 * @return list of {@link OSMAddress} instances around the specified point
+	 *         ordered by the increasing distance to the point
 	 */
-	public List<OSMAddress> getFromLocation(double lat, double lng, String token) throws ProtocolException, RemoteException, ConnectionException {
+	public List<OSMAddress> getFromLocation(double lat, double lng, String token) throws ProtocolException, RemoteException,
+			ConnectionException {
 		if (!isConnected())
 			throw new ConnectionException("No connection");
 
-		return queryLocations(null, new double[]{lat,lng}, GEOCODE_DISTANCE, token);
+		return queryLocations(null, new double[] { lat, lng }, GEOCODE_DISTANCE, token);
 	}
 
 	private List<OSMAddress> jsonObject2addressList(JSONObject in) throws IOException, JSONException {
 		List<OSMAddress> addrs = new ArrayList<OSMAddress>();
 
 		JSONObject jsonObject = in.getJSONObject("response");
-		
+
 		JSONArray results = jsonObject.getJSONArray("docs");
 		if (results == null || results.length() < 1) {
 			return addrs;
@@ -201,7 +209,8 @@ public class OSMGeocoder {
 		return addrs;
 	}
 
-	private JSONObject execute(String server, String query, Map<String,Object> params, String token) throws SecurityException, RemoteException {
+	private JSONObject execute(String server, String query, Map<String, Object> params, String token) throws SecurityException,
+			RemoteException {
 		String result = RemoteConnector.getJSON(server, query, token, params);
 		JSONObject jsonObject = new JSONObject();
 		try {
@@ -210,6 +219,6 @@ public class OSMGeocoder {
 			e.printStackTrace();
 		}
 		return jsonObject;
-
 	}
+
 }

@@ -24,8 +24,6 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 
-import com.google.android.maps.GeoPoint;
-
 /**
  * 
  * LocationHelper
@@ -47,7 +45,7 @@ public class LocationHelper {
 	private LocationManager mLocationManager;
 	private LocationListener mLocationListener;
 	private List<LocationListener> mLocationListenersList = new ArrayList<LocationListener>();
-	private Location mLocation;
+	private Location mLocation = null;
 
 	public LocationHelper(Context mContext) {
 		this.mContext = mContext;
@@ -75,11 +73,8 @@ public class LocationHelper {
 		mLocationManager.removeUpdates(mLocationListener);
 	}
 
-	public GeoPoint getLocation() {
-		if (mLocation != null) {
-			return new GeoPoint((int) (mLocation.getLatitude() * 1E6), (int) (mLocation.getLongitude() * 1E6));
-		}
-		return null;
+	public Location getLocation() {
+		return mLocation;
 	}
 
 	public boolean addLocationListener(LocationListener ll) {
