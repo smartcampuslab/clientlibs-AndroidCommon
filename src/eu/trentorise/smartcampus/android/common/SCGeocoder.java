@@ -52,7 +52,7 @@ public class SCGeocoder {
 	private Context mContext;
 	private Locale mLocale = Locale.getDefault();
 
-	private String url = "https://vas.smartcampuslab.it";
+	private String url = "https://geo.smartcommunitylab.it";
 
 	private static final Set<String> ADMIN_AREA_TYPES = new HashSet<String>();
 	static {
